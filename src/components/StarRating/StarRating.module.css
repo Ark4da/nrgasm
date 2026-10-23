@@ -1,0 +1,36 @@
+/* 1–5 star rating display (read-only in M1). */
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stars {
+  display: flex;
+  gap: var(--space-1);
+}
+
+/* Shared size and stroke for every star */
+.star {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.filled {
+  fill: var(--color-accent);
+  stroke: var(--color-accent);
+}
+
+.empty {
+  fill: none;
+  stroke: var(--color-text-disabled);
+}
+
+.label {
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
