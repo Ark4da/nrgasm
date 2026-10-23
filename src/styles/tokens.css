@@ -1,0 +1,50 @@
+/*
+ * Design tokens for the "Acid Lab" design system (see docs/DESIGN.md).
+ * Components use these variables only, never raw values.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Base */
+  --color-bg: #090a0c;
+  --color-surface: #121316;
+  --color-elevated: #1a1c20;
+  --color-border: #262930;
+  --color-border-glass: rgba(255, 255, 255, 0.08);
+
+  /* Text */
+  --color-text: #f4f4f6;
+  --color-text-secondary: #9ca3af;
+  --color-text-hint: #80808a;
+  --color-text-disabled: #52525b; /* never for readable text (~2.5:1) */
+
+  /* Accent */
+  --color-accent: #95d600;
+  --color-accent-glow: rgba(149, 214, 0, 0.15);
+  --color-on-accent: #090a0c;
+
+  /* Typography */
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-body: 'Archivo', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Shape */
+  --radius-control: 10px;
+  --radius-card: 24px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}

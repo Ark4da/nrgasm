@@ -2,8 +2,8 @@
 
 ## Now
 
-- **Milestone:** M0 — Setup, not started.
-- **Next step:** review the docs, then write the implementation plan for M0–M1.
+- **Milestone:** M1 — One card.
+- **Next step:** Task 3 of `docs/superpowers/plans/2026-10-22-m0-m1-one-card.md`, the types and the catalog.
 
 Legend for who makes each file:
 
@@ -13,7 +13,7 @@ Legend for who makes each file:
 
 ## Milestones
 
-- [ ] M0 — Setup
+- [x] M0 — Setup
 - [ ] M1 — One card ← first result
 - [ ] M2 — Catalog
 - [ ] M3 — User data
@@ -35,6 +35,9 @@ Legend for who makes each file:
 | 2026-10-22 | Ratings are whole stars, 1–5 | Simple; half stars can come later |
 | 2026-10-22 | Can artwork is made by the owner; code ships a neutral placeholder | Brand rule: no recreated logos or can designs |
 | 2026-10-22 | Docs are written in English | The repository is a portfolio piece |
+| 2026-10-22 | ESLint, not Oxlint | Standard tooling; includes the `react-hooks` rules |
+| 2026-10-22 | `"strict": true` written explicitly in `tsconfig.app.json` | Do not rely on compiler defaults |
+| 2026-10-23 | Local imports are written without file extensions (`'./App'`) | One consistent style |
 
 ## Session log
 
@@ -44,6 +47,14 @@ Legend for who makes each file:
 - Compared four visual directions on a Claude Design canvas and chose D.
 - Wrote `CLAUDE.md`, `docs/PRODUCT.md`, `docs/DESIGN.md`, and `docs/PROGRESS.md`.
 - `README.md` is postponed until after the Vite scaffold, because Vite ships its own README.
+- Installed Git and Node, set up the noreply commit email, created the public `nrgasm` repository on GitHub.
+- Task 1: scaffolded Vite 8 + React 19 + TypeScript 6, made the first commit, and pushed to GitHub.
+
+### 2026-10-23: M0 done
+
+- Task 2: added design tokens, global styles, and fonts, and removed the template leftovers.
+- Fixed: `main.tsx` had inlined the markup instead of rendering `<App />`.
+- Fixed: edits had not been saved in VS Code. Auto Save is recommended.
 
 ## Learning log
 
@@ -51,10 +62,18 @@ Concepts the owner has worked through, with where they appeared:
 
 | Concept | Where | Notes |
 |---|---|---|
-| — | — | — |
+| Node.js, npm, `package.json` scripts | Task 1 | `npm run dev` runs `vite`; `npm run build` runs `tsc -b && vite build` |
+| Lock file | Task 1 | `package.json` holds version ranges; `package-lock.json` pins exact versions, so it is committed |
+| The dev server does not type-check | Task 1 | Type errors show up only in the editor and in `npm run build` |
+| `strict` mode | Task 1 | Includes `strictNullChecks` |
+| Git basics | Task 1 | `add` → staging, `commit`, `remote` / `push -u`, `.gitignore` |
+| CSS custom properties (tokens) | Task 2 | Defining a variable styles nothing; `var()` uses it |
+| Cascade and order | Task 2 | For `var()` the import order barely matters; for the same property on the same selector, the later rule wins |
+| Entry point vs root component | Task 2 | `main.tsx` mounts `<App />`; the UI lives in `App` and its children |
+| Non-null assertion `!` | Task 2 | `getElementById` returns `HTMLElement \| null`; prefer real checks in our own code |
 
 ## Open questions
 
 - Which flavors go into the catalog first? Who verifies the facts, and from which sources?
 - Can images: format and size, to be agreed before M2.
-- GitHub repository and remote: when?
+- GitHub repository: public `nrgasm`, created empty and pushed in Task 1, Step 7 of the M0–M1 plan.
