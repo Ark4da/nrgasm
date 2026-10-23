@@ -23,6 +23,14 @@
   --color-accent-glow: rgba(149, 214, 0, 0.15);
   --color-on-accent: #090a0c;
 
+  /* Can placeholder metal (aluminium body and rim) */
+  --can-rim: #6b7078;
+  --can-metal-dark: #34373d;
+  --can-metal-mid: #5c6068;
+  --can-metal-soft: #8e939b;
+  --can-metal-light: #a9aeb6;
+  --shadow-can: 0 24px 60px -20px rgba(0, 0, 0, 0.8);
+
   /* Typography */
   --font-display: 'Archivo', system-ui, sans-serif;
   --font-body: 'Archivo', system-ui, sans-serif;

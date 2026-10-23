@@ -95,7 +95,8 @@ Tokens: `--font-display`, `--font-body`, `--font-mono`.
 - **Placeholder.** It is a CSS can built from three parts:
   - a top rim in a dark metallic grey;
   - an aluminium body with a horizontal metallic gradient;
-  - a band in the can's `flavorColor` holding the can name in JetBrains Mono.
+  - a band in the can's `flavorColor` holding the can name in JetBrains Mono, on a small dark label so the name stays readable on any flavor color.
+- **Metal tokens.** The placeholder's greys and shadow are tokens too: `--can-rim`, `--can-metal-dark`, `--can-metal-mid`, `--can-metal-soft`, `--can-metal-light`, `--shadow-can`.
 - **3D (M6).** A cylinder model whose label texture is either the owner's image or a generated placeholder.
 
 ## Component: CanCard (M1)
