@@ -1,0 +1,11 @@
+/* Same footprint as the placeholder (146 × 314 at size 1). */
+
+.image {
+  object-fit: contain;
+  filter: var(--filter-can);
+}
+
+.xs { width: 38px; height: 82px; }
+.sm { width: 91px; height: 195px; }
+.md { width: 120px; height: 258px; }
+.lg { width: 175px; height: 377px; }

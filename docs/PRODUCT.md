@@ -61,15 +61,24 @@ The project has two purposes:
 ```ts
 type CanId = string; // URL slug, e.g. "mango-loco"
 
+type Region = 'EU' | 'US';
+
 interface Can {
   id: CanId;
   name: string;
   line: string;          // e.g. "Juice", "Ultra"
   flavorColor: string;   // hex, used only for the can placeholder
-  caffeineMg?: number;   // optional until verified
+  regions: Region[];     // where it is (or was) sold
+  discontinued?: boolean;
+  flavor?: string;       // flavor profile from the source
+  caffeineMg?: number;   // only from a cited source, else undefined
   sugarG?: number;
+  caloriesKcal?: number;
   volumeMl?: number;
+  factsRegion?: Region;  // which region's can the numbers describe
+  source?: string;       // URL the numbers come from
   image?: string;        // path under public/cans/; missing → placeholder
+  label?: string;        // unrolled 3D skin under public/cans/
 }
 
 interface TastingEntry {

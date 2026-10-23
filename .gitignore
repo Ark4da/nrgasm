@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Can skins are brand artwork and third-party photos: kept locally, not published
+public/cans/

@@ -30,6 +30,11 @@
   --can-metal-soft: #8e939b;
   --can-metal-light: #a9aeb6;
   --shadow-can: 0 24px 60px -20px rgba(0, 0, 0, 0.8);
+  --can-shade: rgba(0, 0, 0, 0.28);
+  --filter-can: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.6));
+
+  /* Header glass */
+  --color-bg-glass: rgba(9, 10, 12, 0.78);
 
   /* Typography */
   --font-display: 'Archivo', system-ui, sans-serif;
