@@ -1,0 +1,9 @@
+/* One canvas over the whole window. It sits above the cards but below
+   the sticky header (z-index 10), so cans scroll under the header. */
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}

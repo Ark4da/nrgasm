@@ -2,28 +2,37 @@
  * Neutral CSS can, used while the owner has no image for a can.
  * The flavor color comes in as the custom property --flavor,
  * set by the component through the style prop.
+ * Every size is a multiple of --u, so one rule scales the whole can.
  */
 
 .can {
+  --u: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+.xs { --u: 0.26; }
+.sm { --u: 0.62; }
+.md { --u: 0.82; }
+.lg { --u: 1.2; }
+
 .rim {
-  width: 126px;
-  height: 14px;
-  border-radius: 8px 8px 2px 2px;
+  width: calc(126px * var(--u));
+  height: calc(14px * var(--u));
+  border-radius: calc(8px * var(--u)) calc(8px * var(--u)) 2px 2px;
   background-color: var(--can-rim);
 }
 
 .body {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 146px;
-  height: 300px;
-  border-radius: 14px;
+  width: calc(146px * var(--u));
+  height: calc(300px * var(--u));
+  overflow: hidden;
+  border-radius: calc(14px * var(--u));
   background-image: linear-gradient(
     90deg,
     var(--can-metal-dark) 0%,
@@ -35,12 +44,27 @@
   box-shadow: var(--shadow-can);
 }
 
+/* Soft shading over the band too, so the can reads as round */
+.body::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    90deg,
+    var(--can-shade) 0%,
+    transparent 22%,
+    transparent 70%,
+    var(--can-shade) 100%
+  );
+  pointer-events: none;
+}
+
 .band {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 92px;
-  padding: 0 var(--space-2);
+  height: calc(92px * var(--u));
+  padding: 0 calc(var(--space-2) * var(--u));
   /* second value is the fallback if --flavor is not set */
   background-color: var(--flavor, var(--color-elevated));
 }
@@ -52,8 +76,14 @@
   background-color: var(--color-bg);
   color: var(--color-text-secondary);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: calc(11px * max(var(--u), 0.82));
   letter-spacing: 0.1em;
+  line-height: 1.3;
   text-align: center;
   text-transform: uppercase;
+}
+
+/* Too small to read: keep only the color band */
+.xs .label {
+  display: none;
 }

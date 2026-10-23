@@ -2,8 +2,8 @@
 
 ## Now
 
-- **Milestone:** M1 — One card.
-- **Next step:** Task 4 of `docs/superpowers/plans/2026-10-22-m0-m1-one-card.md`, the `CanPlaceholder` component.
+- **Milestone:** v1 feature-complete (M1–M8), built by Claude on the owner's request.
+- **Next step:** the owner reviews the code, verifies catalog names and facts, and adds their own can images to `public/cans/`.
 
 Legend for who makes each file:
 
@@ -14,14 +14,14 @@ Legend for who makes each file:
 ## Milestones
 
 - [x] M0 — Setup
-- [ ] M1 — One card ← first result
-- [ ] M2 — Catalog
-- [ ] M3 — User data
-- [ ] M4 — Can page
-- [ ] M5 — Search and filters
-- [ ] M6 — 3D hero
-- [ ] M7 — Stats + export
-- [ ] M8 — Polish
+- [x] M1 — One card
+- [x] M2 — Catalog
+- [x] M3 — User data
+- [x] M4 — Can page
+- [x] M5 — Search and filters
+- [x] M6 — 3D hero
+- [x] M7 — Stats + export
+- [x] M8 — Polish
 
 ## Decisions
 
@@ -40,6 +40,24 @@ Legend for who makes each file:
 | 2026-10-23 | Local imports are written without file extensions (`'./App'`) | One consistent style |
 | 2026-10-23 | The can placeholder's metal greys are tokens (`--can-*`, `--shadow-can`) | Keeps the "no raw hex in components" rule |
 | 2026-10-23 | The placeholder shows the name on a dark label inside the flavor band | Readable on any flavor color |
+| 2026-10-23 | The owner handed M1–M8 to Claude in one go ("make it polished"); teaching mode paused | The owner had finished experimenting and wanted the finished v1 |
+| 2026-10-23 | Installed the approved stack: react-router 8, motion 14, three + @react-three/fiber 9 + drei 10, vitest 5 | All listed in the CLAUDE.md stack table |
+| 2026-10-23 | User data lives in a small external store read with `useSyncExternalStore` (`src/hooks/`) | Saves on every change without effects; no provider needed |
+| 2026-10-23 | Rating a can marks it tried; un-marking tried clears the rating; blank entries are removed | No "untried but rated 5" state; storage holds only real data |
+| 2026-10-23 | Catalog filters live in the URL (`?q=&line=&tried=&rating=`) | Survive reload and the back button; shareable |
+| 2026-10-23 | Unreadable saved data is moved to `nrgasm:v1:unreadable` before starting empty | A later save never destroys it |
+| 2026-10-23 | Export files are wrapped: `{ app: "nrgasm", version: 1, exportedAt, entries }` | A random JSON file is not mistaken for a backup |
+| 2026-10-23 | The 3D label is drawn on a 2D canvas with colors read from tokens; an owner image replaces it | Keeps the "no raw hex" rule and the brand rule |
+| 2026-10-23 | Catalog cards show spinning 3D cans: one fixed canvas with drei `View`s, not one canvas per card | Browsers allow about 16 WebGL contexts; off-screen views are skipped |
+| 2026-10-23 | 3D skins use a separate `Can.label` field (unrolled label, about 1.38 : 1, front in the middle); `image` stays the flat photo | An unrolled label would look wrong as a flat picture on the can page |
+| 2026-10-23 | The owner supplied the Monster Energy label (`public/cans/monster-energy.jpg`, padded with black to 1.38 : 1) | The owner's call; the brand rule only forbids Claude drawing the artwork |
+| 2026-10-23 | Skins may be stitched from the photos on energy-drink-cans.onrender.com (© Energy Drink Cans UK), local use only; `public/cans/` is git-ignored | The owner chose this over shooting their own cans; the photos are not ours to publish |
+| 2026-10-23 | With a skin, the can's neck takes the label's top-edge color; only the lid and base stay metal | The owner asked for no bare silver on skinned cans |
+| 2026-10-23 | The catalog covers every Monster sold in Europe or the US, current and discontinued, all lines (incl. coffee, Hydro, Muscle); one entry per flavor with `regions` | The owner's choice; avoids duplicate cards per region |
+| 2026-10-23 | Facts come from cited sources only, with `factsRegion` and `source`: official UK/DE pages (EU, 500 ml: caffeine, sugar), official US pages (caffeine, calories; sugar only when 0), Energy Drink Mania for discontinued cans (volume, caffeine, calories) | Keeps "never invent facts" while filling the catalog; the owner can check every number |
+| 2026-10-23 | "Discontinued" = not on the official US, UK, or German product lists as of October 2026 | A rule anyone can re-check |
+| 2026-10-23 | Japan-only versions and the alcoholic Beast Unleashed line are left out | Outside EU/US, or not an energy drink |
+| 2026-10-23 | Catalog cards mount the 3D can only near the viewport (`useNearViewport`) | 144 cards would otherwise hold 144 label textures in GPU memory |
 
 ## Session log
 
@@ -59,6 +77,41 @@ Legend for who makes each file:
 - Fixed: edits had not been saved in VS Code. Auto Save is recommended.
 - Task 3: wrote the `Can`, `Rating`, and `TastingEntry` types and a catalog with Mango Loco. Proved the types work by breaking them on purpose.
 - Review fixes: a missing `export`, removing `tastingId`, extracting `Rating`, using a hex `flavorColor`.
+- Task 4: built the `CanPlaceholder` component. The tricky parts were closing JSX tags and passing `--flavor` through `style`.
+- Task 5: built the `StarRating` component. The owner got most of the way; Claude supplied the final version on request.
+
+### 2026-10-23: v1 built (M1–M8)
+
+- `src/lib/` with Vitest tests first: `validate`, `storage`, `entries`, `filters`, `stats`, `transfer`, `format` (39 tests).
+- Catalog of 23 cans across Original, Juice, Ultra, Rehab, and Reserve. Names and lines only; every fact is still `undefined`.
+- Components: `CanCard` (grid card with stretched link and Tried toggle), `CanVisual`, sized `CanPlaceholder`, interactive `StarRating` (native radios), `TriedToggle` (checkbox), `FilterBar`, `DataTransfer`, `Layout`, `ErrorBoundary`, shared `buttonClass`.
+- Pages: home with a lazy-loaded 3D can ring (pauses on hover/focus, featured names turn their can to the front, static fallback without WebGL, no spin under reduced motion), catalog, can page with notes, stats with export/import, 404.
+- Motion: one hero entrance, card entrance and layout animation on filtering, view transitions that glide the can from card to page, star pop, self-drawing tick. All respect `prefers-reduced-motion`.
+- Verified in the built-in browser at 1440px and 375px: persistence after reload, filters, rating, notes, stats, 404, the unreadable-data notice, no horizontal scroll.
+- `npm run build`, `npm run lint`, and `npm run test` all pass.
+
+### 2026-10-23: 3D cans in the catalog
+
+- The owner asked for every catalog can to be 3D and spinning, filling the card's can column.
+- `three/CanMesh.tsx` holds the can model shared by the home ring and the catalog; `three/token.ts` reads tokens.
+- `three/CatalogCans.tsx`: `CatalogCanvas` (one canvas over the window, below the sticky header) and `CanView` (a card's box the canvas draws into). Shared reflections from `RoomEnvironment`.
+- Each can starts at its own angle; with reduced motion the cans stand still, label turned to the camera.
+- Fallbacks: flat placeholder while the 3D code loads, without WebGL, or if the canvas throws (`ErrorBoundary` got an `onError` prop).
+- Checked with headless Edge at 1440px and 390px; build, lint, and tests pass.
+- Tried the dev server on the owner's phone with `npm run dev -- --host`.
+- First skin: Monster Energy. Owner labels get a less metallic, glossier material and are shifted so their middle faces the camera; the home ring now turns each label outwards.
+- Stitched skins for Pipeline Punch, Zero Ultra, and Ultra Violet from 5 photos each: per-row perspective unwarp, edge matching between neighbours, loop closed to 360°, narrow blends. The stitching script lives outside the repo (Claude's scratchpad).
+- Only six catalog cans have photos all around on that site (also Pacific Punch, Monarch, Ultra Paradise); the other 17 have a front photo only.
+- All 23 cans now have skins: 6 stitched all around, Monster Energy from the owner, 16 from one front photo. Front-only skins repeat the front on the back with the can's background color between, so the logo shows for most of a turn. Pacific Punch is a price-marked can (£1.39 on the back).
+- Skins are 1024 px wide (about 2.5 MB for all 23) to keep GPU memory reasonable on phones.
+
+### 2026-10-23: Full Monster catalog
+
+- Catalog grew from 23 to 144 cans in 13 lines: Original, Reserve, Juice, Ultra, Rehab, Coffee, Dragon Tea, Hydro, Muscle, Maxx, Extra Strength, Mutant, Dub. New cans have no skins yet (drawn placeholder).
+- Scraped the official US, UK, and German product pages and the Energy Drink Mania reviews; every number in `cans.ts` has a `source` URL.
+- `Can` gained `regions`, `discontinued`, `flavor`, `caloriesKcal`, `factsRegion`, `source`. New `CanTags` component (EU / US / Discontinued) on cards and the can page; the can page shows calories, the flavor, "Figures for the 500 ml EU can · Source".
+- Search also matches the flavor. `formatFactsBasis` added to `src/lib/format.ts` (tests first); 43 tests pass.
+- Some cans exist only by name (Export, BFC, M3, Java Big Black, Hydro Mean Green, Hydrosport, three Muscle flavors): no facts found.
 
 ## Learning log
 
@@ -81,9 +134,22 @@ Concepts the owner has worked through, with where they appeared:
 | Literal union types | Task 3 | `type Rating = 1 \| 2 \| 3 \| 4 \| 5`; narrower than `number` |
 | `import type` | Task 3 | Required by `verbatimModuleSyntax`; types are erased from the JavaScript output |
 | `null` vs missing vs `0` | Task 3 | `rating: Rating \| null` is always present; `null` means "not rated"; `0` would corrupt averages |
+| Components and typed props | Task 4 | A function that returns JSX; `({ a, b }: Props)` destructures its props |
+| JSX nesting | Task 4 | Every tag closes, inner tags first; an empty element self-closes with `<div />`; format with `Shift+Alt+F` |
+| CSS Modules | Task 4 | `styles.x` must match `.x` in the CSS; a wrong name silently becomes `undefined` |
+| Path pitfalls | Task 4 | Match the file name's case exactly (Linux is case-sensitive); watch out for Cyrillic look-alike letters |
+| CSS variables from TypeScript | Task 4 | `{ '--flavor': value } as CSSProperties` on `style`; CSS decides where the value is used |
+| Imports between files | Task 4 | A named export needs a named import `{ X }`; paths are relative to the importing file |
+| Lists in JSX | Task 5 | `Array.from({ length: 5 }, (_, i) => …)` with `.map`-style rendering; every item needs a `key` |
+| `??` vs `\|\|` | Task 5 | `??` replaces only `null` or `undefined`; `\|\|` replaces any falsy value (`0`, `''`) |
+| Narrowing with `!== null` | Task 5 | An explicit check says exactly "the rating exists" |
+| Two classes at once | Task 5 | `` `${styles.a} ${cond ? styles.b : styles.c}` `` |
+| Compute before `return` | Task 5 | Keep logic in variables above `return`; keep the JSX clean |
+| SVG styling through classes | Task 5 | A `fill` attribute bypasses the CSS; classes keep colors in tokens |
 
 ## Open questions
 
-- Which flavors go into the catalog first? Who verifies the facts, and from which sources?
+- The catalog facts come from cited web sources (see each can's `source`); the owner should spot-check them. US sugar is unknown for most US-only cans.
+- `CLAUDE.md` still describes teaching mode. Keep it for future work, or rewrite it now that v1 exists?
 - Can images: format and size, to be agreed before M2.
 - GitHub repository: public `nrgasm`, created empty and pushed in Task 1, Step 7 of the M0–M1 plan.

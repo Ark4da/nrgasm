@@ -1,0 +1,54 @@
+import { describe, expect, it } from 'vitest';
+import type { UserData } from '../types/tasting';
+import { BACKUP_KEY, STORAGE_KEY, loadUserData, saveUserData, type KeyValueStorage } from './storage';
+
+function memoryStorage(initial: Record<string, string> = {}): KeyValueStorage & { items: Record<string, string> } {
+  const items = { ...initial };
+  return {
+    items,
+    getItem: (key) => items[key] ?? null,
+    setItem: (key, value) => {
+      items[key] = value;
+    },
+  };
+}
+
+const sample: UserData = {
+  'mango-loco': { tried: true, rating: 4, note: 'Sweet', updatedAt: '2026-10-23T10:00:00.000Z' },
+};
+
+describe('loadUserData', () => {
+  it('starts empty when nothing is stored', () => {
+    expect(loadUserData(memoryStorage())).toEqual({ data: {}, recovered: false });
+  });
+
+  it('reads valid data', () => {
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(sample) });
+    expect(loadUserData(storage)).toEqual({ data: sample, recovered: false });
+  });
+
+  it('recovers from broken JSON and backs the raw value up', () => {
+    const storage = memoryStorage({ [STORAGE_KEY]: '{not json' });
+    expect(loadUserData(storage)).toEqual({ data: {}, recovered: true });
+    expect(storage.items[BACKUP_KEY]).toBe('{not json');
+  });
+
+  it('recovers from a wrong shape', () => {
+    const bad = { 'mango-loco': { tried: 'yes', rating: 7, note: 1 } };
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(bad) });
+    expect(loadUserData(storage).recovered).toBe(true);
+  });
+
+  it('rejects an array', () => {
+    const storage = memoryStorage({ [STORAGE_KEY]: '[]' });
+    expect(loadUserData(storage).recovered).toBe(true);
+  });
+});
+
+describe('saveUserData', () => {
+  it('round-trips through load', () => {
+    const storage = memoryStorage();
+    saveUserData(storage, sample);
+    expect(loadUserData(storage).data).toEqual(sample);
+  });
+});
