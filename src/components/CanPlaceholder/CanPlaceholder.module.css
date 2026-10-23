@@ -1,0 +1,59 @@
+/*
+ * Neutral CSS can, used while the owner has no image for a can.
+ * The flavor color comes in as the custom property --flavor,
+ * set by the component through the style prop.
+ */
+
+.can {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rim {
+  width: 126px;
+  height: 14px;
+  border-radius: 8px 8px 2px 2px;
+  background-color: var(--can-rim);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 146px;
+  height: 300px;
+  border-radius: 14px;
+  background-image: linear-gradient(
+    90deg,
+    var(--can-metal-dark) 0%,
+    var(--can-metal-light) 24%,
+    var(--can-metal-mid) 48%,
+    var(--can-metal-soft) 72%,
+    var(--can-metal-dark) 100%
+  );
+  box-shadow: var(--shadow-can);
+}
+
+.band {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 92px;
+  padding: 0 var(--space-2);
+  /* second value is the fallback if --flavor is not set */
+  background-color: var(--flavor, var(--color-elevated));
+}
+
+/* Dark label keeps the name readable on any flavor color */
+.label {
+  padding: var(--space-1) var(--space-2);
+  border-radius: 4px;
+  background-color: var(--color-bg);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+}
