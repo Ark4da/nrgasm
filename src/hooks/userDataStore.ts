@@ -2,7 +2,8 @@ import type { CanId } from '../types/can';
 import type { EntryPatch, UserData } from '../types/tasting';
 import { updateEntry } from '../lib/entries';
 import { createWriteQueue } from '../lib/queue';
-import { importPlan, planWrite, restoreEntry, rowsToUserData } from '../lib/rows';
+import { importPlan, planWrite, rowsToUserData } from '../lib/rows';
+import { failedWrite, loaded, rollbackAll, savedWrite } from '../lib/sync';
 import { mergeUserData } from '../lib/merge';
 import { loadUserData, markLegacyMoved, readCache, userCacheKey, writeCache } from '../lib/storage';
 import { applyImport, fetchEntries, writeEntry } from '../services/entries';
@@ -33,6 +34,8 @@ const LOAD_FAILED = 'Could not load your tastings. Showing the last saved copy.'
 
 let snapshot: UserDataSnapshot = { data: {}, notice: null, mode: 'guest', signInPrompt: false, legacyCount: 0 };
 let userId: string | null = null;
+/** What the database is known to hold (see lib/sync.ts); failures fall back to it. */
+let confirmed: UserData = {};
 /** "Not now" on the move question holds until the next page load. */
 let legacySkipped = false;
 const listeners = new Set<() => void>();
@@ -76,12 +79,15 @@ async function load(id: string) {
   try {
     const data = rowsToUserData(await fetchEntries());
     if (userId !== id) return;
-    setData(data);
+    const state = loaded(data);
+    confirmed = state.confirmed;
+    setData(state.data);
     // Only once the account's own rows are here can old data be merged into them
     const legacyCount = legacySkipped ? 0 : Object.keys(readLegacy()).length;
     if (legacyCount > 0) emit({ ...snapshot, legacyCount });
   } catch {
-    if (userId === id) emit({ ...snapshot, notice: LOAD_FAILED });
+    // Keep a more specific notice (a failed import or move) if there is one
+    if (userId === id && !snapshot.notice) emit({ ...snapshot, notice: LOAD_FAILED });
   }
 }
 
@@ -92,7 +98,9 @@ function followAuth() {
   if (auth.status === 'signed-in') {
     if (userId === auth.user.id) return;
     userId = auth.user.id;
-    emit({ data: readCacheSafely(userId), notice: null, mode: 'signed-in', signInPrompt: false, legacyCount: 0 });
+    // The cache is the last copy the database confirmed (failed changes are undone in it too)
+    confirmed = readCacheSafely(userId);
+    emit({ data: confirmed, notice: null, mode: 'signed-in', signInPrompt: false, legacyCount: 0 });
     void load(userId);
     return;
   }
@@ -106,7 +114,16 @@ function followAuth() {
     }
   }
   userId = null;
+  confirmed = {};
   emit({ data: {}, notice: null, mode: 'guest', signInPrompt: false, legacyCount: 0 });
+}
+
+/** A failed import or move: show the confirmed data again, then re-read the database if it can be reached. */
+function undoBulkChange(owner: string, notice: string) {
+  if (userId !== owner) return;
+  setData(rollbackAll({ data: snapshot.data, confirmed }).data);
+  emit({ ...snapshot, notice });
+  void load(owner);
 }
 
 authStore.subscribe(followAuth);
@@ -126,32 +143,40 @@ export const userDataStore = {
       emit({ ...snapshot, signInPrompt: true });
       return;
     }
-    const previous = snapshot.data[id];
     const next = updateEntry(snapshot.data, id, patch, new Date());
     setData(next);
     const written = next[id];
-    runWrite(id, () => writeEntry(planWrite(owner, id, next))).catch(() => {
-      // Undo only if nothing newer replaced this change in the meantime
-      if (userId !== owner || snapshot.data[id] !== written) return;
-      setData(restoreEntry(snapshot.data, id, previous));
-      emit({ ...snapshot, notice: SAVE_FAILED });
-    });
+    runWrite(id, () => writeEntry(planWrite(owner, id, next))).then(
+      () => {
+        if (userId === owner) confirmed = savedWrite({ data: snapshot.data, confirmed }, id, written).confirmed;
+      },
+      () => {
+        if (userId !== owner) return;
+        const state = failedWrite({ data: snapshot.data, confirmed }, id, written);
+        // A newer change to this can is already on screen: its own write decides
+        if (state.data === snapshot.data) return;
+        setData(state.data);
+        emit({ ...snapshot, notice: SAVE_FAILED });
+      },
+    );
   },
 
-  /** Import: replaces the account's tastings with `data`. */
-  async replaceAll(data: UserData): Promise<void> {
+  /** Import: replaces the account's tastings with `data`. Resolves to whether it was saved. */
+  async replaceAll(data: UserData): Promise<boolean> {
     const owner = userId;
     if (!owner) {
       emit({ ...snapshot, signInPrompt: true });
-      return;
+      return false;
     }
     const plan = importPlan(owner, snapshot.data, data);
     setData(data);
     try {
       await applyImport(plan);
+      if (userId === owner) confirmed = data;
+      return true;
     } catch {
-      emit({ ...snapshot, notice: 'The import did not finish. Your account shows what was saved.' });
-      await load(owner);
+      undoBulkChange(owner, 'The import did not finish, so nothing changed. Check your connection and try again.');
+      return false;
     }
   },
 
@@ -165,10 +190,10 @@ export const userDataStore = {
     emit({ ...snapshot, legacyCount: 0 });
     try {
       await applyImport(plan);
+      if (userId === owner) confirmed = merged;
       markLegacyMoved(window.localStorage);
     } catch {
-      emit({ ...snapshot, notice: 'Could not move your tastings. They are still in this browser; try again after a reload.' });
-      await load(owner);
+      undoBulkChange(owner, 'Could not move your tastings. They are still in this browser; try again after a reload.');
     }
   },
 
