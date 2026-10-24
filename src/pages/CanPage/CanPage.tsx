@@ -10,6 +10,8 @@ import { CanVisual } from '../../components/CanVisual/CanVisual';
 import { StarRating } from '../../components/StarRating/StarRating';
 import { TriedToggle } from '../../components/TriedToggle/TriedToggle';
 import { WantToggle } from '../../components/WantToggle/WantToggle';
+import { CommunityRating } from '../../components/CommunityRating/CommunityRating';
+import { useCommunityRatings } from '../../hooks/useCommunityRatings';
 import { ErrorBoundary } from '../../components/ErrorBoundary/ErrorBoundary';
 import { NOTE_TAGS, hasNoteTag, toggleNoteTag } from '../../lib/noteTags';
 import { hasWebGL } from '../../three/webgl';
@@ -63,6 +65,7 @@ function CanDetails({ can }: { can: Can }) {
   // The glow behind the can takes the can's own color
   const glowStyle = { '--glow': can.flavorColor } as CSSProperties;
   const tried = entry?.tried ?? false;
+  const community = useCommunityRatings()[can.id];
   const reducedMotion = useReducedMotion() ?? false;
   const [webgl] = useState(hasWebGL);
   const [canvasFailed, setCanvasFailed] = useState(false);
@@ -143,6 +146,7 @@ function CanDetails({ can }: { can: Can }) {
               />
             )}
             <StarRating value={entry?.rating ?? null} onChange={(rating) => updateEntry(can.id, { rating })} />
+            <CommunityRating rating={community} />
             <Link to={`/compare?a=${can.id}`} className={styles.compare}>
               Compare
             </Link>

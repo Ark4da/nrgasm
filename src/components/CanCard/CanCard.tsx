@@ -9,6 +9,8 @@ import { CanVisual } from '../CanVisual/CanVisual';
 import { TriedToggle } from '../TriedToggle/TriedToggle';
 import { WantToggle } from '../WantToggle/WantToggle';
 import { CanTags } from '../CanTags/CanTags';
+import { CommunityRating } from '../CommunityRating/CommunityRating';
+import { useCommunityRatings } from '../../hooks/useCommunityRatings';
 import { useNearViewport } from '../../hooks/useNearViewport';
 import styles from './CanCard.module.css';
 
@@ -48,6 +50,7 @@ export function CanCard({ can, entry, onChange, show3d = false, reducedMotion = 
     const glowStyle = { '--glow': can.flavorColor } as CSSProperties;
     const tried = entry?.tried ?? false;
     const second = secondFact(can);
+    const community = useCommunityRatings()[can.id];
     const flat = (
         <div className={styles.lift} style={transitionStyle}>
             <CanVisual can={can} size="sm" />
@@ -81,6 +84,7 @@ export function CanCard({ can, entry, onChange, show3d = false, reducedMotion = 
                 <div className={styles.rate}>
                     <StarRating value={entry?.rating ?? null} onChange={(rating) => onChange({ rating })} context={can.name} />
                 </div>
+                <CommunityRating rating={community} />
                 <dl className={styles.facts}>
                     <div className={styles.fact}>
                         <dt className={styles.factLabel}>Caffeine</dt>

@@ -19,3 +19,13 @@ export function ratingsFromStats(rows: unknown[]): Record<CanId, CommunityRating
   }
   return ratings;
 }
+
+/** "★ 4.2 · 37 ratings" */
+export function formatCommunityRating({ average, count }: CommunityRating): string {
+  return `★ ${average.toFixed(1)} · ${count} ${count === 1 ? 'rating' : 'ratings'}`;
+}
+
+/** "Average rating 4.2 from 37 people", for screen readers. */
+export function describeCommunityRating({ average, count }: CommunityRating): string {
+  return `Average rating ${average.toFixed(1)} from ${count} ${count === 1 ? 'person' : 'people'}`;
+}
