@@ -4,7 +4,7 @@ import { useReducedMotion } from 'motion/react';
 import type { Can } from '../../types/can';
 import { cans, catalogNumber, findCan } from '../../data/cans';
 import { useUserData } from '../../hooks/useUserData';
-import { formatDateTime, formatFact, formatFactsBasis } from '../../lib/format';
+import { formatDateTime, formatFact, formatFactsBasis, sourceName } from '../../lib/format';
 import { CanTags } from '../../components/CanTags/CanTags';
 import { CanVisual } from '../../components/CanVisual/CanVisual';
 import { StarRating } from '../../components/StarRating/StarRating';
@@ -48,6 +48,7 @@ function CanDetails({ can }: { can: Can }) {
   const { data, updateEntry } = useUserData();
   const entry = data[can.id];
   const noteId = useId();
+  const tasteId = useId();
   // A local draft: storage drops blank entries, which would otherwise eat a leading space.
   const [draft, setDraft] = useState(entry?.note ?? '');
   const { previous, next } = neighbours(can);
@@ -120,6 +121,26 @@ function CanDetails({ can }: { can: Can }) {
               Compare
             </Link>
           </section>
+
+          {can.taste && (
+            <section className={styles.taste} aria-labelledby={tasteId}>
+              <h2 id={tasteId} className={styles.tasteTitle}>
+                What it tastes like
+              </h2>
+              <p className={styles.tasteText}>{can.taste.text}</p>
+              <p className={styles.factsNote}>
+                Summed up from{' '}
+                {can.taste.sources.map((url, index) => (
+                  <span key={url}>
+                    {index > 0 && ' · '}
+                    <a href={url} target="_blank" rel="noreferrer">
+                      {sourceName(url)}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            </section>
+          )}
 
           <section className={styles.factsBlock} aria-label="Nutrition facts">
             <dl className={styles.facts}>

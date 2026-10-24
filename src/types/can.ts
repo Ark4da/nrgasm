@@ -1,5 +1,11 @@
 export type CanId = string;
 
+/** What a can tastes like, summed up from the pages in `sources`. */
+export interface Taste {
+  text: string;
+  sources: string[];
+}
+
 /** Where a can is (or was) sold. */
 export type Region = 'EU' | 'US';
 
@@ -21,6 +27,8 @@ export interface Can {
   factsRegion?: Region;
   /** Where the numbers come from. */
   source?: string;
+  /** What it tastes like; missing when no source describes it. */
+  taste?: Taste;
   image?: string;
   /** The 3D can's skin: the whole label unrolled flat, about 1.38 : 1, front in the middle. */
   label?: string;

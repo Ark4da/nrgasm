@@ -67,6 +67,8 @@ Legend for who makes each file:
 | 2026-10-24 | Bottle-shaped products (Hydro, Hydrosport, M3) get no photo skin | A bottle photo cannot be wrapped onto the can model |
 | 2026-10-24 | The owner's label scans and print files (`E:ImagesMonster_label`) replace the photo skins where both exist | Flat artwork is sharper and shows the whole can; the replaced skins are kept outside the repo |
 | 2026-10-24 | A print file narrower than 1.382 : 1 gets a fill at the back in the label's own background color, not a stretch | Stretching would squash the logo by up to 17% |
+| 2026-10-24 | Taste descriptions live in `src/data/tastes.ts` (keyed by can id, merged into `cans`), each with its source links | Keeps `cans.ts` lines readable; every claim can be checked |
+| 2026-10-24 | Descriptions are written in our own words from the official page, the Energy Drink Mania review, and the Monster Energy wiki; no source, no description | "Never invent product facts"; copying the reviews word for word is not ours to publish |
 
 ## Session log
 
@@ -140,6 +142,14 @@ Legend for who makes each file:
 - Replaced: Rehab Tea + Lemonade, Rehab Green Tea, Assault, Zero Ultra, Khaotic, Ultra Rosá, Mango Loco, Ultra Blue, VR46 The Doctor. New: Java Irish Crème, Java Salted Caramel, Java Mean Bean, The Original Zero Sugar. 68 of 144 cans have skins.
 - The neck now carries the label's top strip, so bands like "KHAOTIC" or "ROSSI VR|46" sit on the shoulder up to the lid. Fixed on the way: a material first built without a map ignored the texture (separate `key`s), and a cloned texture needs `needsUpdate`.
 - Some sources are other regions' cans (Canadian 458/473 ml scans, a Ukrainian 355 ml Mango Loco); only the artwork is used, the catalog facts are unchanged.
+
+### 2026-10-24: Taste descriptions
+
+- 127 of 144 cans got a "What it tastes like" block on the can page, with links to its sources.
+- Sources: 167 Energy Drink Mania reviews (the taste sections), 33 pages of the Monster Energy wiki, and the official texts collected on 2026-10-23. Three of the owner's links (official site, two Reddit threads) had expired.
+- No description for 17 cans: 10 have no usable source (Export, BFC, M3, Java Big Black, Hydro Mean Green, both Hydrosport, three Muscle), and for 7 the official page only repeats the short flavor line (Zero Sugar, The Original Zero Sugar, Lando Norris, Full Throttle, Top Speed, VR46 Zero Sugar, Viking Berry).
+- Where a review describes another country's can, the text says so (Reserve Watermelon: US can).
+- `sourceName` in `src/lib/format.ts` turns a source URL into a readable name (tests first); 73 tests pass.
 
 ## Learning log
 

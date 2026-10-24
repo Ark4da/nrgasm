@@ -1,4 +1,5 @@
 import type { Can, Region } from '../types/can';
+import { tastes } from './tastes';
 
 // The catalog: every Monster sold in Europe or the US, past and present.
 //
@@ -45,7 +46,7 @@ function edm(page: string, factsRegion: Region, volumeMl?: number, caffeineMg?: 
   return { caffeineMg, caloriesKcal, volumeMl, factsRegion, source: `${EDM}${page}.html` };
 }
 
-export const cans: Can[] = [
+const catalog: Can[] = [
   // Original
   { id: 'monster-energy', name: 'Monster Energy', line: 'Original', flavorColor: '#3F8F2A', regions: ['EU', 'US'], flavor: 'Sweet and salty — it tastes like Monster!', ...uk('monster-energy/original-green/', 160, 55), label: '/cans/monster-energy.jpg' },
   { id: 'lo-carb', name: 'Lo-Carb', line: 'Original', flavorColor: '#3C7DD9', regions: ['US'], flavor: 'Sweet and salty — it tastes like Lo-Carb Monster!', ...us('monster-energy/lo-carb/', 140, 30, OZ_16), label: '/cans/lo-carb.jpg' },
@@ -216,6 +217,12 @@ export const cans: Can[] = [
   { id: 'dub-mad-dog', name: 'Dub Edition Mad Dog', line: 'Dub', flavorColor: '#7A3CA8', regions: ['US'], discontinued: true, flavor: 'Grape, punch', ...edm('monster_energy_dub_mad_dog', 'US', 473, 160, 220), label: '/cans/dub-mad-dog.jpg' },
   { id: 'dub-ballers-blend', name: 'Dub Edition Baller’s Blend', line: 'Dub', flavorColor: '#C9A83C', regions: ['US'], discontinued: true, flavor: 'Punch', ...edm('monster_energy_dub_ballers_blend', 'US', 473, 160, 210), label: '/cans/dub-ballers-blend.jpg' },
 ];
+
+// Taste notes live in their own file (tastes.ts); every can picks up its entry here
+export const cans: Can[] = catalog.map((can) => {
+  const taste = tastes[can.id];
+  return taste ? { ...can, taste } : can;
+});
 
 export function findCan(id: string | undefined): Can | undefined {
   return cans.find((can) => can.id === id);
