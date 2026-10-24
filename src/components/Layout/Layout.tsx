@@ -6,6 +6,7 @@ import { useUserData } from '../../hooks/useUserData';
 import { authErrorFromUrl } from '../../lib/authUrl';
 import { AccountMenu } from '../AccountMenu/AccountMenu';
 import { SignInPrompt } from '../SignInPrompt/SignInPrompt';
+import { MoveDataPrompt } from '../MoveDataPrompt/MoveDataPrompt';
 import styles from './Layout.module.css';
 
 function navClass({ isActive }: { isActive: boolean }): string {
@@ -13,7 +14,8 @@ function navClass({ isActive }: { isActive: boolean }): string {
 }
 
 export function Layout() {
-  const { data, notice, dismissNotice, signInPrompt, closeSignInPrompt } = useUserData();
+  const { data, notice, dismissNotice, signInPrompt, closeSignInPrompt, legacyCount, moveLegacy, skipLegacy } =
+    useUserData();
   const auth = useAuth();
   const navigate = useNavigate();
   const triedCount = cans.filter((can) => data[can.id]?.tried).length;
@@ -82,6 +84,7 @@ export function Layout() {
       </footer>
 
       <SignInPrompt open={signInPrompt} onClose={closeSignInPrompt} />
+      <MoveDataPrompt count={legacyCount} onMove={() => void moveLegacy()} onSkip={skipLegacy} />
       <ScrollRestoration />
     </div>
   );

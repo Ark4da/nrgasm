@@ -3,7 +3,8 @@ import type { EntryPatch, UserData } from '../types/tasting';
 import { updateEntry } from '../lib/entries';
 import { createWriteQueue } from '../lib/queue';
 import { importPlan, planWrite, restoreEntry, rowsToUserData } from '../lib/rows';
-import { readCache, userCacheKey, writeCache } from '../lib/storage';
+import { mergeUserData } from '../lib/merge';
+import { loadUserData, markLegacyMoved, readCache, userCacheKey, writeCache } from '../lib/storage';
 import { applyImport, fetchEntries, writeEntry } from '../services/entries';
 import { authStore } from './authStore';
 
@@ -23,13 +24,17 @@ export interface UserDataSnapshot {
   mode: 'guest' | 'signed-in';
   /** True while the "Sign in to keep track" prompt should show. */
   signInPrompt: boolean;
+  /** Tastings saved in this browser before signing in, waiting to be moved; 0 when none. */
+  legacyCount: number;
 }
 
 const SAVE_FAILED = 'Could not save your change, so it was undone. Check your connection and try again.';
 const LOAD_FAILED = 'Could not load your tastings. Showing the last saved copy.';
 
-let snapshot: UserDataSnapshot = { data: {}, notice: null, mode: 'guest', signInPrompt: false };
+let snapshot: UserDataSnapshot = { data: {}, notice: null, mode: 'guest', signInPrompt: false, legacyCount: 0 };
 let userId: string | null = null;
+/** "Not now" on the move question holds until the next page load. */
+let legacySkipped = false;
 const listeners = new Set<() => void>();
 const runWrite = createWriteQueue();
 
@@ -58,10 +63,23 @@ function readCacheSafely(id: string): UserData {
   }
 }
 
+/** This browser's tastings from before accounts existed. */
+function readLegacy(): UserData {
+  try {
+    return loadUserData(window.localStorage).data;
+  } catch {
+    return {};
+  }
+}
+
 async function load(id: string) {
   try {
     const data = rowsToUserData(await fetchEntries());
-    if (userId === id) setData(data);
+    if (userId !== id) return;
+    setData(data);
+    // Only once the account's own rows are here can old data be merged into them
+    const legacyCount = legacySkipped ? 0 : Object.keys(readLegacy()).length;
+    if (legacyCount > 0) emit({ ...snapshot, legacyCount });
   } catch {
     if (userId === id) emit({ ...snapshot, notice: LOAD_FAILED });
   }
@@ -74,7 +92,7 @@ function followAuth() {
   if (auth.status === 'signed-in') {
     if (userId === auth.user.id) return;
     userId = auth.user.id;
-    emit({ data: readCacheSafely(userId), notice: null, mode: 'signed-in', signInPrompt: false });
+    emit({ data: readCacheSafely(userId), notice: null, mode: 'signed-in', signInPrompt: false, legacyCount: 0 });
     void load(userId);
     return;
   }
@@ -88,7 +106,7 @@ function followAuth() {
     }
   }
   userId = null;
-  emit({ data: {}, notice: null, mode: 'guest', signInPrompt: false });
+  emit({ data: {}, notice: null, mode: 'guest', signInPrompt: false, legacyCount: 0 });
 }
 
 authStore.subscribe(followAuth);
@@ -135,6 +153,28 @@ export const userDataStore = {
       emit({ ...snapshot, notice: 'The import did not finish. Your account shows what was saved.' });
       await load(owner);
     }
+  },
+
+  /** Moves this browser's old tastings into the account; the newer entry wins per can. */
+  async moveLegacy(): Promise<void> {
+    const owner = userId;
+    if (!owner) return;
+    const merged = mergeUserData(snapshot.data, readLegacy());
+    const plan = importPlan(owner, snapshot.data, merged);
+    setData(merged);
+    emit({ ...snapshot, legacyCount: 0 });
+    try {
+      await applyImport(plan);
+      markLegacyMoved(window.localStorage);
+    } catch {
+      emit({ ...snapshot, notice: 'Could not move your tastings. They are still in this browser; try again after a reload.' });
+      await load(owner);
+    }
+  },
+
+  skipLegacy() {
+    legacySkipped = true;
+    emit({ ...snapshot, legacyCount: 0 });
   },
 
   requestSignIn() {

@@ -4,6 +4,8 @@ import { parseUserData } from './validate';
 export const STORAGE_KEY = 'nrgasm:v1';
 /** Where unreadable data is moved, so a later save never destroys it. */
 export const BACKUP_KEY = 'nrgasm:v1:unreadable';
+/** Where data saved before accounts existed is kept once it has moved into an account. */
+export const MOVED_KEY = 'nrgasm:v1:moved';
 
 export type KeyValueStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
@@ -61,4 +63,12 @@ export function readCache(storage: KeyValueStorage, userId: string): UserData {
 
 export function writeCache(storage: KeyValueStorage, userId: string, data: UserData): void {
   storage.setItem(userCacheKey(userId), JSON.stringify(data));
+}
+
+/** After moving this browser's old tastings into an account: keep a copy, stop offering the move. */
+export function markLegacyMoved(storage: KeyValueStorage & Pick<Storage, 'removeItem'>): void {
+  const raw = storage.getItem(STORAGE_KEY);
+  if (raw === null) return;
+  storage.setItem(MOVED_KEY, raw);
+  storage.removeItem(STORAGE_KEY);
 }
