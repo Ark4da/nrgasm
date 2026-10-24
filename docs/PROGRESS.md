@@ -2,8 +2,8 @@
 
 ## Now
 
-- **Milestone:** v1 feature-complete (M1–M8), built by Claude on the owner's request.
-- **Next step:** the owner reviews the code, verifies catalog names and facts, and adds their own can images to `public/cans/`.
+- **Milestone:** v1.1 UX pass done (want to try, sort and new filters, compare, PWA, 64 skins). Not committed yet: the owner reviews first.
+- **Next step:** the owner reviews the code and the site, then commits. Open: HTTPS for the phone over the LAN (see Open questions).
 
 Legend for who makes each file:
 
@@ -58,6 +58,12 @@ Legend for who makes each file:
 | 2026-10-23 | "Discontinued" = not on the official US, UK, or German product lists as of October 2026 | A rule anyone can re-check |
 | 2026-10-23 | Japan-only versions and the alcoholic Beast Unleashed line are left out | Outside EU/US, or not an energy drink |
 | 2026-10-23 | Catalog cards mount the 3D can only near the viewport (`useNearViewport`) | 144 cards would otherwise hold 144 label textures in GPU memory |
+| 2026-10-24 | "Want to try" is a stored field (`wantToTry`); old entries without it read as `false` | A shopping list must survive reload and export; no migration step needed |
+| 2026-10-24 | The catalog shows cans on sale by default (`?show=all` / `discontinued` to widen) | 76 of 144 cans are discontinued; they buried the ones you can buy |
+| 2026-10-24 | Note tags are `#words` inside the note text | They travel through export/import with no new storage field |
+| 2026-10-24 | The glow behind a can uses its `flavorColor` (cards, can page, compare) | The owner asked for each can's own color |
+| 2026-10-24 | PWA without a plugin: hand-written `manifest.webmanifest` and `public/sw.js`, registered in production builds only | No new dependency; in dev a cached copy would hide Vite's changes |
+| 2026-10-24 | Bottle-shaped products (Hydro, Hydrosport, M3) get no photo skin | A bottle photo cannot be wrapped onto the can model |
 
 ## Session log
 
@@ -113,6 +119,18 @@ Legend for who makes each file:
 - Search also matches the flavor. `formatFactsBasis` added to `src/lib/format.ts` (tests first); 43 tests pass.
 - Some cans exist only by name (Export, BFC, M3, Java Big Black, Hydro Mean Green, Hydrosport, three Muscle flavors): no facts found.
 
+### 2026-10-24: UX pass (v1.1)
+
+- Logic first, with tests: `wantToTry` in entries and validation, filters by availability and region, six sort orders, line averages and caffeine total in stats, note tags (`noteTags.ts`), "Surprise me" (`surprise.ts`), and `compare.ts` (including caffeine per 100 ml). 71 tests pass.
+- Catalog: search, sort, and a Filters button stay sticky on phones; the filters open in a bottom sheet with a count. Stars on cards are clickable; cards show calories when sugar is unknown; "Want to try" sits next to "Tried".
+- Can page: the 3D can turns by drag or arrow keys (state in a ref, so the frame loop reads it without re-renders), glow in the can's color, quick note tags, a link to Compare.
+- New `/compare` page: two pickers, spinning cans, a facts table marking the larger value, a note when EU and US figures are mixed.
+- Stats: want-to-try count (links to the filtered catalog), caffeine drunk, average rating per line.
+- PWA: app icon (`public/icon.svg` + PNGs), manifest, a service worker (network-first pages, cache-first `/assets/`). Checked offline with `vite preview` and the server stopped. The Vite favicon was removed.
+- Skins: 41 new ones from the collector site (front photo, alpha cut-out), Ultra Black, Ultra Blue, and Ultra Red stitched all around; 64 of 144 cans have skins. Hydro, Hydrosport, M3 are bottles; Full Throttle and Papillon had no matching can.
+- Fixed on the way: a lint error from mutating state in the drag code, the Filters icon squeezed to a dot on 375 px, a sticky offset that pushed the phone can page's can down.
+- Checked at 1440 px and 375–390 px; build, lint, and tests pass.
+
 ## Learning log
 
 Concepts the owner has worked through, with where they appeared:
@@ -152,4 +170,6 @@ Concepts the owner has worked through, with where they appeared:
 - The catalog facts come from cited web sources (see each can's `source`); the owner should spot-check them. US sugar is unknown for most US-only cans.
 - `CLAUDE.md` still describes teaching mode. Keep it for future work, or rewrite it now that v1 exists?
 - Can images: format and size, to be agreed before M2.
+- The service worker needs a secure origin. On the phone via `http://192.168.x.x` the app installs only as a shortcut and does not work offline. Options: `@vitejs/plugin-basic-ssl` (a new dependency, to discuss) or a deploy.
+- `public/icons.svg` is a Vite template leftover nobody uses.
 - GitHub repository: public `nrgasm`, created empty and pushed in Task 1, Step 7 of the M0–M1 plan.

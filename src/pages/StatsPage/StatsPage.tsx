@@ -51,8 +51,29 @@ export function StatsPage() {
             <dd>{formatAverage(stats.averageRating)}</dd>
           </div>
           <div className={styles.figure}>
+            <dt>Want to try</dt>
+            <dd>
+              {stats.wantToTry > 0 ? (
+                <Link to="/catalog?tried=want&show=all" className={styles.figureLink}>
+                  {stats.wantToTry}
+                </Link>
+              ) : 0}
+            </dd>
+          </div>
+          <div className={styles.figure}>
             <dt>Still to try</dt>
             <dd>{stats.total - stats.tried}</dd>
+          </div>
+          <div className={styles.figure}>
+            <dt>Caffeine drunk</dt>
+            <dd>
+              {stats.caffeineMg.toLocaleString('en-GB')} <span className={styles.unit}>mg</span>
+            </dd>
+            {stats.caffeineKnown < stats.tried && (
+              <p className={styles.figureNote}>
+                {stats.caffeineKnown} of {stats.tried} tried cans have a known caffeine figure
+              </p>
+            )}
           </div>
         </dl>
       </section>
@@ -107,6 +128,10 @@ export function StatsPage() {
 
           <section className={`${styles.panel} ${styles.wide}`}>
             <h2 className={styles.heading}>By line</h2>
+            <p className={styles.barHead} aria-hidden="true">
+              <span>Tried</span>
+              <span>Avg ★</span>
+            </p>
             <ul className={styles.bars}>
               {stats.byLine.map((line) => (
                 <li key={line.line} className={styles.barRow}>
@@ -116,6 +141,10 @@ export function StatsPage() {
                   <span className={styles.bar} style={fill(line.tried, line.total)} aria-hidden="true" />
                   <span className={styles.barValue}>
                     {line.tried} / {line.total}
+                  </span>
+                  <span className={styles.barValue}>
+                    <span className="visually-hidden">Average rating </span>
+                    {formatAverage(line.averageRating)}
                   </span>
                 </li>
               ))}

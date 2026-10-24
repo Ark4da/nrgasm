@@ -77,7 +77,7 @@
 
 .figures {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: var(--space-3);
   margin: 0;
 }
@@ -105,6 +105,28 @@
   font-family: var(--font-mono);
   font-size: 32px;
   font-weight: 500;
+}
+
+.figureLink {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.figureLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.unit {
+  color: var(--color-text-secondary);
+  font-size: 0.5em;
+}
+
+.figureNote {
+  color: var(--color-text-hint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .columns {
@@ -207,12 +229,34 @@
   list-style: none;
 }
 
-.barRow {
+.barRow,
+.barHead {
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr) 64px;
   align-items: center;
   gap: var(--space-4);
   min-height: 44px;
+}
+
+/* Column titles over the line rows' two value columns */
+.barHead {
+  grid-template-columns: 120px minmax(0, 1fr) 64px 56px;
+  min-height: 0;
+  margin-bottom: calc(var(--space-2) * -1);
+  color: var(--color-text-hint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.barHead > :first-child {
+  grid-column: 3;
+}
+
+.wide .barRow {
+  grid-template-columns: 120px minmax(0, 1fr) 64px 56px;
 }
 
 .barLabel,
@@ -266,9 +310,15 @@
     padding: var(--space-5);
   }
 
-  .barRow {
+  .barRow,
+  .barHead {
     grid-template-columns: 80px minmax(0, 1fr) 48px;
     gap: var(--space-3);
+  }
+
+  .wide .barRow,
+  .barHead {
+    grid-template-columns: 96px minmax(0, 1fr) 56px 40px;
   }
 
   .topLink {

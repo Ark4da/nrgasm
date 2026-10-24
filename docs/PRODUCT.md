@@ -83,6 +83,7 @@ interface Can {
 
 interface TastingEntry {
   tried: boolean;
+  wantToTry: boolean;    // shopping list; cleared once tried (missing in old data → false)
   rating: 1 | 2 | 3 | 4 | 5 | null;
   note: string;
   updatedAt: string;     // ISO 8601
@@ -102,6 +103,7 @@ type UserData = Record<CanId, TastingEntry>;
 | `/` | 3D hero + entry to the catalog | M6 (until then: the catalog) |
 | `/catalog` | Grid + search and filters | M2, M5 |
 | `/can/:id` | Can page | M4 |
+| `/compare?a=&b=` | Two cans side by side | v1.1 |
 | `/stats` | Stats + export / import | M7 |
 
 ## Milestones

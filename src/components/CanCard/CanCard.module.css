@@ -19,7 +19,7 @@
   background-color: var(--color-elevated);
 }
 
-/* Left column: the can on a soft green glow */
+/* Left column: the can on a glow in its own color (--glow, set from the can's data) */
 .visual {
   position: relative;
   display: flex;
@@ -33,11 +33,11 @@
   position: absolute;
   inset: 0;
   background-image: radial-gradient(
-    circle at 50% 50%,
-    var(--color-accent-glow) 0%,
-    transparent 62%
+    ellipse 55% 50% at 50% 50%,
+    color-mix(in srgb, var(--glow, var(--color-accent)) 45%, transparent) 0%,
+    transparent 100%
   );
-  opacity: 0.35;
+  opacity: 0.55;
   transition: opacity var(--duration-base) var(--ease-out);
 }
 
@@ -175,7 +175,17 @@
   font-size: 15px;
 }
 
+/* Interactive stars sit above the card's stretched link */
+.rate {
+  position: relative;
+  z-index: 1;
+  align-self: flex-start;
+}
+
 .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
   margin-top: auto;
 }
 

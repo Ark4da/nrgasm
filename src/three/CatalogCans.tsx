@@ -1,4 +1,15 @@
-import { createContext, use, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import {
+  createContext,
+  use,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent,
+  type RefObject,
+} from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { PerspectiveCamera, View } from '@react-three/drei';
 import { PMREMGenerator, type Group, type PerspectiveCamera as Camera, type Texture } from 'three';
@@ -73,12 +84,25 @@ function startAngle(id: string): number {
   return LABEL_FRONT + ((sum % 100) / 100) * Math.PI * 2;
 }
 
+/** Shared between the DOM handlers (writers) and the frame loop (reader). */
+interface Drag {
+  active: boolean;
+  /** Turn collected since the last frame, in radians. */
+  pending: number;
+  /** Speed the can keeps after a flick, in radians per second. */
+  velocity: number;
+}
+
+const DRAG_SPEED = 0.012; // radians per pixel
+const KEY_STEP = 0.35; // radians per arrow-key press
+
 interface SpinningCanProps {
   can: Can;
   reducedMotion: boolean;
+  dragRef?: RefObject<Drag>;
 }
 
-function SpinningCan({ can, reducedMotion }: SpinningCanProps) {
+function SpinningCan({ can, reducedMotion, dragRef }: SpinningCanProps) {
   const shared = use(SharedContext);
   const camera = useRef<Camera>(null);
   const spin = useRef<Group>(null);
@@ -97,8 +121,21 @@ function SpinningCan({ can, reducedMotion }: SpinningCanProps) {
         cam.position.z = z;
       }
     }
-    if (spin.current && !reducedMotion) {
-      spin.current.rotation.y += delta * SPIN_SPEED;
+    const group = spin.current;
+    if (!group) return;
+    if (dragRef) {
+      const state = dragRef.current;
+      group.rotation.y += state.pending;
+      state.pending = 0;
+      if (state.active) return;
+      // After a flick, ease back from the flick speed to the idle spin
+      const idle = reducedMotion ? 0 : SPIN_SPEED;
+      state.velocity += (idle - state.velocity) * Math.min(1, delta * 2.5);
+      group.rotation.y += state.velocity * delta;
+      return;
+    }
+    if (!reducedMotion) {
+      group.rotation.y += delta * SPIN_SPEED;
     }
   });
 
@@ -123,15 +160,72 @@ function SpinningCan({ can, reducedMotion }: SpinningCanProps) {
 interface CanViewProps {
   can: Can;
   reducedMotion: boolean;
+  /** Let the visitor turn the can by dragging or with the arrow keys. */
+  interactive?: boolean;
   className?: string;
   style?: CSSProperties;
 }
 
 /** A can spinning inside this element's box, drawn by CatalogCanvas. */
-export function CanView({ can, reducedMotion, className, style }: CanViewProps) {
+export function CanView({ can, reducedMotion, interactive = false, className, style }: CanViewProps) {
+  // A ref, not state: the handlers and the frame loop change it without re-rendering
+  const drag = useRef<Drag>({ active: false, pending: 0, velocity: reducedMotion ? 0 : SPIN_SPEED });
+  const last = useRef({ x: 0, time: 0 });
+
+  if (!interactive) {
+    return (
+      <View className={className} style={style}>
+        <SpinningCan can={can} reducedMotion={reducedMotion} />
+      </View>
+    );
+  }
+
+  function onPointerDown(event: PointerEvent<HTMLDivElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    drag.current.active = true;
+    drag.current.velocity = 0;
+    last.current = { x: event.clientX, time: event.timeStamp };
+  }
+
+  function onPointerMove(event: PointerEvent<HTMLDivElement>) {
+    const state = drag.current;
+    if (!state.active) return;
+    const turn = (event.clientX - last.current.x) * DRAG_SPEED;
+    const seconds = Math.max(0.001, (event.timeStamp - last.current.time) / 1000);
+    state.pending += turn;
+    // Reduced motion: the can follows the finger but does not keep spinning
+    state.velocity = reducedMotion ? 0 : turn / seconds;
+    last.current = { x: event.clientX, time: event.timeStamp };
+  }
+
+  function onPointerUp() {
+    drag.current.active = false;
+  }
+
+  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      drag.current.pending += event.key === 'ArrowLeft' ? -KEY_STEP : KEY_STEP;
+    }
+  }
+
+  // The handlers sit on a wrapper: View's props do not take DOM attributes
   return (
-    <View className={className} style={style}>
-      <SpinningCan can={can} reducedMotion={reducedMotion} />
-    </View>
+    <div
+      className={`${className ?? ''} ${styles.grab}`}
+      style={style}
+      tabIndex={0}
+      role="img"
+      aria-label={`${can.name} can. Drag, or use the arrow keys, to turn it.`}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onKeyDown={onKeyDown}
+    >
+      <View className={styles.fill}>
+        <SpinningCan can={can} reducedMotion={reducedMotion} dragRef={drag} />
+      </View>
+    </div>
   );
 }

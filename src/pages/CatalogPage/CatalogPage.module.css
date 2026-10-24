@@ -22,6 +22,18 @@
   text-transform: uppercase;
 }
 
+.headerSide {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+}
+
+.surpriseIcon {
+  width: 20px;
+  height: 20px;
+}
+
 .count {
   color: var(--color-text-secondary);
   font-family: var(--font-mono);

@@ -4,6 +4,8 @@ export type Rating = 1 | 2 | 3 | 4 | 5;
 
 export interface TastingEntry {
   tried: boolean;
+  /** On the user's shopping list; cleared once the can is tried. */
+  wantToTry: boolean;
   rating: Rating | null;
   note: string;
   updatedAt: string; // ISO 8601

@@ -6,6 +6,8 @@ interface StarRatingProps {
   value: Rating | null;
   /** When given, the stars become an input; without it they only display. */
   onChange?: (value: Rating | null) => void;
+  /** Names the can for screen readers when many ratings share a page. */
+  context?: string;
 }
 
 const STAR_PATH =
@@ -21,7 +23,7 @@ function Star({ filled }: { filled: boolean }) {
   );
 }
 
-export function StarRating({ value, onChange }: StarRatingProps) {
+export function StarRating({ value, onChange, context }: StarRatingProps) {
   const name = useId();
   const [preview, setPreview] = useState<Rating | null>(null);
 
@@ -47,7 +49,7 @@ export function StarRating({ value, onChange }: StarRatingProps) {
 
   return (
     <fieldset className={styles.rating}>
-      <legend className="visually-hidden">Your rating</legend>
+      <legend className="visually-hidden">{context ? `Your rating for ${context}` : 'Your rating'}</legend>
       <div className={styles.stars} onMouseLeave={() => setPreview(null)}>
         {RATINGS.map((star) => (
           <label
