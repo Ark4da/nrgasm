@@ -3,7 +3,9 @@ import type { UserData } from '../types/tasting';
 import {
   BACKUP_KEY,
   STORAGE_KEY,
+  MOVED_KEY,
   loadUserData,
+  markLegacyMoved,
   readCache,
   saveUserData,
   userCacheKey,
@@ -11,13 +13,18 @@ import {
   type KeyValueStorage,
 } from './storage';
 
-function memoryStorage(initial: Record<string, string> = {}): KeyValueStorage & { items: Record<string, string> } {
+function memoryStorage(
+  initial: Record<string, string> = {},
+): KeyValueStorage & Pick<Storage, 'removeItem'> & { items: Record<string, string> } {
   const items = { ...initial };
   return {
     items,
     getItem: (key) => items[key] ?? null,
     setItem: (key, value) => {
       items[key] = value;
+    },
+    removeItem: (key) => {
+      delete items[key];
     },
   };
 }
@@ -90,5 +97,21 @@ describe('account cache', () => {
     const storage = memoryStorage({ 'nrgasm:v1:user:u1': '{broken', [STORAGE_KEY]: JSON.stringify(sample) });
     expect(readCache(storage, 'u1')).toEqual({});
     expect(storage.items[STORAGE_KEY]).toBe(JSON.stringify(sample));
+  });
+});
+
+describe('markLegacyMoved', () => {
+  it('keeps the old data under the moved key', () => {
+    const storage = memoryStorage({ [STORAGE_KEY]: '{"a":1}' });
+    markLegacyMoved(storage);
+    expect(storage.getItem(STORAGE_KEY)).toBeNull();
+    expect(storage.getItem(MOVED_KEY)).toBe('{"a":1}');
+    expect(MOVED_KEY).toBe('nrgasm:v1:moved');
+  });
+
+  it('does nothing when there is no old data', () => {
+    const storage = memoryStorage();
+    markLegacyMoved(storage);
+    expect(storage.items).toEqual({});
   });
 });
