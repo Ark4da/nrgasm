@@ -1,0 +1,7 @@
+.rating {
+  color: var(--color-text-hint);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
