@@ -51,6 +51,38 @@ The 68 can skins are not in the GitHub repository (`public/cans/` is git-ignored
 
 You decided to publish all 68 skins. Most are third-party photos (© Energy Drink Cans UK) and Monster artwork, and the rights holders may ask for them to be taken down. Deleting the files from the bucket takes the skins down at once, without a new deploy; the cans then fall back to the drawn labels.
 
+## 4. Vercel
+
+1. Sign up at [vercel.com](https://vercel.com) with your GitHub account.
+2. **Add New → Project** → import the GitHub repository `nrgasm`. Vercel detects Vite: build command `npm run build`, output directory `dist`. Leave them.
+3. **Environment Variables**, for Production and Preview:
+   - `VITE_SUPABASE_URL` — the Project URL from section 2;
+   - `VITE_SUPABASE_PUBLISHABLE_KEY` — the publishable key from section 2;
+   - `VITE_SKIN_BASE_URL` — the bucket URL from section 3.
+4. **Deploy.** After a minute the site is live at an address like `https://nrgasm.vercel.app`.
+5. If the address is not `nrgasm.vercel.app`, put the real one into Supabase: **Authentication → URL Configuration → Site URL**.
+6. From now on every `git push` to `main` deploys a new version; other branches get preview addresses.
+
+Check the live site:
+
+- open `/can/assault` directly (not through the menu): the page opens, no 404;
+- the 3D cans have their skins (they come from Storage);
+- sign in with your email and open the link in the same browser;
+- mark a can on your phone, reload on the computer: it is there;
+- in a private window (signed out) the catalog and the "★ … ratings" lines still show.
+
+## 5. Opening sign-up to everyone (later)
+
+The built-in email sends only to your Supabase team, 2 emails per hour. To let anyone sign up:
+
+1. Buy a domain (any registrar).
+2. Sign up with an email provider that offers SMTP (for example Resend) and verify the domain there (it gives you DNS records to add at the registrar).
+3. Supabase → **Authentication → SMTP Settings**: turn on custom SMTP and enter the provider's host, port, user, password, and a sender such as `no-reply@your-domain`.
+4. Supabase → **Authentication → Rate Limits**: raise the email limit (it starts at 30 per hour with custom SMTP).
+5. Vercel → **Settings → Domains**: add the domain. Then update Supabase's Site URL and redirect URLs to the new address.
+
+No code changes are needed.
+
 ## Local development
 
 Create `.env.local` in the project root (it is git-ignored) from `.env.example`:
