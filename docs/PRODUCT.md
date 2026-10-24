@@ -79,6 +79,12 @@ interface Can {
   source?: string;       // URL the numbers come from
   image?: string;        // path under public/cans/; missing → placeholder
   label?: string;        // unrolled 3D skin under public/cans/
+  taste?: Taste;         // what it tastes like, from src/data/tastes.ts
+}
+
+interface Taste {
+  text: string;          // summed up in our own words
+  sources: string[];     // pages the summary is based on
 }
 
 interface TastingEntry {

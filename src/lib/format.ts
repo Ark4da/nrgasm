@@ -32,3 +32,15 @@ export function formatDateTime(iso: string): string {
 export function formatAverage(value: number | null): string {
   return value === null ? '—' : value.toFixed(1);
 }
+
+const SOURCE_NAMES: [host: string, name: string][] = [
+  ['monsterenergy.com', 'Monster Energy'],
+  ['energydrinkmania.net', 'Energy Drink Mania'],
+  ['monster-energy.fandom.com', 'Monster Energy Wiki'],
+];
+
+/** "Energy Drink Mania" for a cited page; any other site shows its host name. */
+export function sourceName(url: string): string {
+  const host = new URL(url).hostname.replace(/^www\./, '');
+  return SOURCE_NAMES.find(([known]) => host === known)?.[1] ?? host;
+}
