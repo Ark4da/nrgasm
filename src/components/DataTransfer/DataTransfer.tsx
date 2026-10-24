@@ -8,6 +8,7 @@ import styles from './DataTransfer.module.css';
 type Status =
   | { kind: 'idle' }
   | { kind: 'confirm'; fileName: string; data: UserData; count: number }
+  | { kind: 'saving' }
   | { kind: 'done'; message: string }
   | { kind: 'error'; message: string };
 
@@ -46,12 +47,18 @@ export function DataTransfer() {
     }
   }
 
-  function confirmImport() {
+  async function confirmImport() {
     if (status.kind !== 'confirm') {
       return;
     }
-    void replaceAll(status.data);
-    setStatus({ kind: 'done', message: `Imported ${status.fileName}.` });
+    const { data: incoming, fileName } = status;
+    setStatus({ kind: 'saving' });
+    const saved = await replaceAll(incoming);
+    setStatus(
+      saved
+        ? { kind: 'done', message: `Imported ${fileName}.` }
+        : { kind: 'error', message: `${fileName} was not imported. Your tastings did not change.` },
+    );
   }
 
   return (
@@ -81,7 +88,7 @@ export function DataTransfer() {
             <strong>{status.fileName}</strong>?
           </p>
           <div className={styles.actions}>
-            <button type="button" className={buttonClass('primary')} onClick={confirmImport} autoFocus>
+            <button type="button" className={buttonClass('primary')} onClick={() => void confirmImport()} autoFocus>
               Replace collection
             </button>
             <button type="button" className={buttonClass('ghost')} onClick={() => setStatus({ kind: 'idle' })}>
@@ -91,6 +98,9 @@ export function DataTransfer() {
         </div>
       )}
 
+      {status.kind === 'saving' && (
+        <p className={styles.message} role="status">Importing…</p>
+      )}
       {status.kind === 'done' && (
         <p className={styles.message} role="status">{status.message}</p>
       )}
