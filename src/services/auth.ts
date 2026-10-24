@@ -1,4 +1,5 @@
-import { isAuthRetryableFetchError } from '@supabase/supabase-js';
+import { isAuthRetryableFetchError, type AuthError } from '@supabase/supabase-js';
+import { authErrorMessage } from '../lib/authErrors';
 import { supabase } from './supabase';
 
 export interface AccountUser {
@@ -6,32 +7,45 @@ export interface AccountUser {
   email: string;
 }
 
-export type SendLinkResult = { ok: true } | { ok: false; message: string };
+export type AuthResult =
+  | { kind: 'signed-in' }
+  /** The account exists but must be confirmed from an email first ("Confirm email" is on in Supabase). */
+  | { kind: 'confirm-email' }
+  | { kind: 'error'; message: string };
 
 const NO_SERVER = 'Sign-in is not set up on this copy of the site.';
+const OFFLINE = 'Could not reach the server. Check your connection.';
 
-/** Emails a sign-in link; the link brings the visitor back to `redirectTo`. */
-export async function sendSignInLink(email: string, redirectTo: string): Promise<SendLinkResult> {
-  if (!supabase) {
-    return { ok: false, message: NO_SERVER };
+function failure(error: AuthError): AuthResult {
+  if (isAuthRetryableFetchError(error)) {
+    return { kind: 'error', message: OFFLINE };
   }
+  return { kind: 'error', message: authErrorMessage({ code: error.code, status: error.status, message: error.message }) };
+}
+
+export async function signInWithPassword(email: string, password: string): Promise<AuthResult> {
+  if (!supabase) return { kind: 'error', message: NO_SERVER };
   try {
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
-    if (!error) {
-      return { ok: true };
-    }
-    if (/not authorized/i.test(error.message)) {
-      return { ok: false, message: 'Only invited email addresses can sign in for now.' };
-    }
-    if (error.status === 429) {
-      return { ok: false, message: 'Too many sign-in emails. Try again in an hour.' };
-    }
-    if (isAuthRetryableFetchError(error)) {
-      return { ok: false, message: 'Could not reach the server. Check your connection.' };
-    }
-    return { ok: false, message: error.message };
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return error ? failure(error) : { kind: 'signed-in' };
   } catch {
-    return { ok: false, message: 'Could not reach the server. Check your connection.' };
+    return { kind: 'error', message: OFFLINE };
+  }
+}
+
+/** Creates an account. With "Confirm email" off in Supabase it signs in at once, with no email sent. */
+export async function signUpWithPassword(email: string, password: string): Promise<AuthResult> {
+  if (!supabase) return { kind: 'error', message: NO_SERVER };
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/catalog` },
+    });
+    if (error) return failure(error);
+    return data.session ? { kind: 'signed-in' } : { kind: 'confirm-email' };
+  } catch {
+    return { kind: 'error', message: OFFLINE };
   }
 }
 

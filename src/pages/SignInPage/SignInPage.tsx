@@ -1,13 +1,17 @@
 import { useId, useState, type FormEvent } from 'react';
 import { Navigate, useLocation } from 'react-router';
 import { useAuth } from '../../hooks/useAuth';
-import { sendSignInLink } from '../../services/auth';
+import { signInWithPassword, signUpWithPassword } from '../../services/auth';
 import { buttonClass } from '../../components/Button/buttonClass';
 import styles from './SignInPage.module.css';
 
-type Status = { kind: 'idle' } | { kind: 'sending' } | { kind: 'sent'; email: string } | { kind: 'error'; message: string };
+type Mode = 'sign-in' | 'sign-up';
+type Status = { kind: 'idle' } | { kind: 'busy' } | { kind: 'confirm-email' } | { kind: 'error'; message: string };
 
-/** A failed link sends the visitor here with the reason (see Layout). */
+/** Supabase's own minimum is lower; 8 is what the dashboard is set to (docs/DEPLOY.md). */
+const MIN_PASSWORD = 8;
+
+/** A failed confirmation link sends the visitor here with the reason (see Layout). */
 function errorFromState(state: unknown): string | null {
   if (typeof state === 'object' && state !== null && 'authError' in state && typeof state.authError === 'string') {
     return state.authError;
@@ -19,41 +23,81 @@ export function SignInPage() {
   const auth = useAuth();
   const location = useLocation();
   const emailId = useId();
+  const passwordId = useId();
+  const panelId = useId();
+  const [mode, setMode] = useState<Mode>('sign-in');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
   const linkError = errorFromState(location.state);
 
+  // Signing in (or a new account) moves the visitor on as soon as the session arrives
   if (auth.status === 'signed-in') {
     return <Navigate to="/catalog" replace />;
   }
 
+  function switchTo(next: Mode) {
+    setMode(next);
+    setStatus({ kind: 'idle' });
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus({ kind: 'sending' });
-    const result = await sendSignInLink(email.trim(), `${window.location.origin}/catalog`);
-    setStatus(result.ok ? { kind: 'sent', email: email.trim() } : { kind: 'error', message: result.message });
+    setStatus({ kind: 'busy' });
+    const send = mode === 'sign-in' ? signInWithPassword : signUpWithPassword;
+    const result = await send(email.trim(), password);
+    if (result.kind === 'error') setStatus({ kind: 'error', message: result.message });
+    else if (result.kind === 'confirm-email') setStatus({ kind: 'confirm-email' });
+    // 'signed-in': the auth store updates and the Navigate above takes over
   }
+
+  const signingUp = mode === 'sign-up';
 
   return (
     <div className={styles.page}>
-      <title>Sign in | NRGASM</title>
-      <h1 className={styles.title}>Sign in</h1>
+      <title>{signingUp ? 'Create an account | NRGASM' : 'Sign in | NRGASM'}</title>
+      <h1 className={styles.title}>{signingUp ? 'Create an account' : 'Sign in'}</h1>
 
-      {status.kind === 'sent' ? (
+      <div className={styles.tabs} role="tablist" aria-label="Sign in or create an account">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={!signingUp}
+          aria-controls={panelId}
+          className={styles.tab}
+          onClick={() => switchTo('sign-in')}
+        >
+          Sign in
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={signingUp}
+          aria-controls={panelId}
+          className={styles.tab}
+          onClick={() => switchTo('sign-up')}
+        >
+          Create account
+        </button>
+      </div>
+
+      {status.kind === 'confirm-email' ? (
         <div className={styles.sent} role="status">
-          <p className={styles.lead}>Check your inbox.</p>
+          <p className={styles.lead}>Almost there.</p>
           <p className={styles.text}>
-            We sent a sign-in link to <strong>{status.email}</strong>. Open the link in this browser — it works for 5
-            minutes.
+            Your account was created. Open the confirmation link we sent to <strong>{email.trim()}</strong>, then sign
+            in here.
           </p>
-          <button type="button" className={buttonClass('ghost')} onClick={() => setStatus({ kind: 'idle' })}>
-            Use another email
+          <button type="button" className={buttonClass('ghost')} onClick={() => switchTo('sign-in')}>
+            Back to sign in
           </button>
         </div>
       ) : (
-        <form className={styles.form} onSubmit={submit}>
+        <form id={panelId} role="tabpanel" className={styles.form} onSubmit={submit}>
           <p className={styles.text}>
-            Enter your email and we will send you a link. No password needed: the link signs you in.
+            {signingUp
+              ? 'Pick an email and a password to keep your tastings on every device.'
+              : 'Welcome back. Your tastings are waiting.'}
           </p>
           {linkError && status.kind === 'idle' && (
             <p className={styles.error} role="alert">
@@ -72,13 +116,32 @@ export function SignInPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
+          <label htmlFor={passwordId} className={styles.label}>
+            Password
+          </label>
+          <input
+            id={passwordId}
+            className={styles.input}
+            type="password"
+            autoComplete={signingUp ? 'new-password' : 'current-password'}
+            required
+            minLength={signingUp ? MIN_PASSWORD : undefined}
+            aria-describedby={signingUp ? `${passwordId}-hint` : undefined}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          {signingUp && (
+            <p id={`${passwordId}-hint`} className={styles.hint}>
+              At least {MIN_PASSWORD} characters.
+            </p>
+          )}
           {status.kind === 'error' && (
             <p className={styles.error} role="alert">
               {status.message}
             </p>
           )}
-          <button type="submit" className={buttonClass('primary')} disabled={status.kind === 'sending'}>
-            {status.kind === 'sending' ? 'Sending…' : 'Send link'}
+          <button type="submit" className={buttonClass('primary')} disabled={status.kind === 'busy'}>
+            {status.kind === 'busy' ? 'One moment…' : signingUp ? 'Create account' : 'Sign in'}
           </button>
         </form>
       )}

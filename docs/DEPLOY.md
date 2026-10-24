@@ -38,7 +38,11 @@ The design behind these steps is in `docs/superpowers/specs/2026-10-24-accounts-
      - `http://localhost:5173/**`
      - `http://localhost:4173/**`
      - `https://*-<your-vercel-account-slug>.vercel.app/**` (preview deployments; the slug is in your Vercel URL)
-6. **Who can sign in for now.** Until you set up your own email server (section 5), Supabase only sends sign-in emails to members of your Supabase team, at most 2 per hour. To let a friend in, invite them under **Organization → Team**.
+6. **Accounts with a password, no emails.** Authentication → **Sign In / Providers** → **Email**:
+   - turn **Confirm email** off, so a new account works at once and no email is sent (Supabase's built-in email only reaches your own team, 2 emails per hour);
+   - set the minimum password length to **8**.
+
+   The cost: nobody proves the address is theirs, so anyone can sign up with any email. Fine among friends; turn Confirm email back on once you have your own email server (section 5).
 
 ## 3. Can skins
 
@@ -67,13 +71,13 @@ Check the live site:
 
 - open `/can/assault` directly (not through the menu): the page opens, no 404;
 - the 3D cans have their skins (they come from Storage);
-- sign in with your email and open the link in the same browser;
+- create an account on `/sign-in` (Create account tab) and sign in;
 - mark a can on your phone, reload on the computer: it is there;
 - in a private window (signed out) the catalog and the "★ … ratings" lines still show.
 
 ## 5. Opening sign-up to everyone (later)
 
-The built-in email sends only to your Supabase team, 2 emails per hour. To let anyone sign up:
+The built-in email sends only to your Supabase team, 2 emails per hour. With your own email server you can turn **Confirm email** back on (new accounts must prove their address) and add password reset later:
 
 1. Buy a domain (any registrar).
 2. Sign up with an email provider that offers SMTP (for example Resend) and verify the domain there (it gives you DNS records to add at the registrar).
