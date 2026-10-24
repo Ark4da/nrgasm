@@ -30,6 +30,10 @@ export interface Can {
   /** What it tastes like; missing when no source describes it. */
   taste?: Taste;
   image?: string;
-  /** The 3D can's skin: the whole label unrolled flat, about 1.38 : 1, front in the middle. */
+  /**
+   * The 3D can's skin: the whole label unrolled flat, about 1.38 : 1, front in the middle.
+   * Usually not written in cans.ts: a file named after the can id in public/cans/ is found
+   * on its own (see skinFiles.json). Set it only for a skin with another name.
+   */
   label?: string;
 }

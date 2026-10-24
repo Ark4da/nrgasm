@@ -73,6 +73,7 @@ Legend for who makes each file:
 | 2026-10-24 | Guests browse only; marking, rating, and notes need an account | The owner's choice |
 | 2026-10-24 | Tastings are private; each can shows the average of everyone's ratings and their count | The owner's choice; totals live in `can_rating_stats`, kept by a trigger, never a view or definer function in `public` |
 | 2026-10-24 | All 68 skins are published from a public Supabase Storage bucket, not from git | The owner's decision, accepting the takedown risk; the GitHub repository stays free of third-party photos |
+| 2026-10-24 | A skin is found by file name: `public/cans/<can id>.jpg` (or .png, .webp); `src/data/skinFiles.json` lists the files, is rewritten by a Vite plugin, and is committed | The owner can add a skin by dropping a file; the explicit `label` lines in `cans.ts` were removed |
 | 2026-10-24 | Descriptions are written in our own words from the official page, the Energy Drink Mania review, and the Monster Energy wiki; no source, no description | "Never invent product facts"; copying the reviews word for word is not ours to publish |
 
 ## Session log

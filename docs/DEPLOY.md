@@ -83,6 +83,14 @@ The built-in email sends only to your Supabase team, 2 emails per hour. To let a
 
 No code changes are needed.
 
+### Adding a skin later
+
+1. Put the file in `public/cans/`, named after the can's id: `vanilla-shot.jpg` (`.png` and `.webp` work too). The id is the last part of the can page's address, `/can/vanilla-shot`.
+2. With `npm run dev` running, `src/data/skinFiles.json` updates by itself and the can shows its skin. No change to `cans.ts` is needed.
+3. Commit `src/data/skinFiles.json` and push, and upload the same file to the `cans` bucket. The live site then shows it too.
+
+The file is an unrolled label: about 1.38 : 1 (1024 × 741 works well), the front in the middle, and the top ~7% is printed on the can's neck.
+
 ## Local development
 
 Create `.env.local` in the project root (it is git-ignored) from `.env.example`:

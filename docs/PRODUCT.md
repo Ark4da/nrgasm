@@ -78,7 +78,7 @@ interface Can {
   factsRegion?: Region;  // which region's can the numbers describe
   source?: string;       // URL the numbers come from
   image?: string;        // path under public/cans/; missing → placeholder
-  label?: string;        // unrolled 3D skin under public/cans/
+  label?: string;        // unrolled 3D skin; by default public/cans/<id>.jpg, found automatically
   taste?: Taste;         // what it tastes like, from src/data/tastes.ts
 }
 
