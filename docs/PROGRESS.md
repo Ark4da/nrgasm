@@ -64,6 +64,8 @@ Legend for who makes each file:
 | 2026-10-24 | The glow behind a can uses its `flavorColor` (cards, can page, compare) | The owner asked for each can's own color |
 | 2026-10-24 | PWA without a plugin: hand-written `manifest.webmanifest` and `public/sw.js`, registered in production builds only | No new dependency; in dev a cached copy would hide Vite's changes |
 | 2026-10-24 | Bottle-shaped products (Hydro, Hydrosport, M3) get no photo skin | A bottle photo cannot be wrapped onto the can model |
+| 2026-10-24 | The owner's label scans and print files (`E:ImagesMonster_label`) replace the photo skins where both exist | Flat artwork is sharper and shows the whole can; the replaced skins are kept outside the repo |
+| 2026-10-24 | A print file narrower than 1.382 : 1 gets a fill at the back in the label's own background color, not a stretch | Stretching would squash the logo by up to 17% |
 
 ## Session log
 
@@ -130,6 +132,12 @@ Legend for who makes each file:
 - Skins: 41 new ones from the collector site (front photo, alpha cut-out), Ultra Black, Ultra Blue, and Ultra Red stitched all around; 64 of 144 cans have skins. Hydro, Hydrosport, M3 are bottles; Full Throttle and Papillon had no matching can.
 - Fixed on the way: a lint error from mutating state in the drag code, the Filters icon squeezed to a dot on 375 px, a sticky offset that pushed the phone can page's can down.
 - Checked at 1440 px and 375–390 px; build, lint, and tests pass.
+
+### 2026-10-24: Owner labels
+
+- 13 labels from the owner's folder: 5 scans of flattened cans (rotated 90°, cropped, one full turn found by matching the image against itself, about 708 px) and 8 flat print files (front moved to the middle, the back filled in the edge's dominant color).
+- Replaced: Rehab Tea + Lemonade, Rehab Green Tea, Assault, Zero Ultra, Khaotic, Ultra Rosá, Mango Loco, Ultra Blue, VR46 The Doctor. New: Java Irish Crème, Java Salted Caramel, Java Mean Bean, The Original Zero Sugar. 68 of 144 cans have skins.
+- Some sources are other regions' cans (Canadian 458/473 ml scans, a Ukrainian 355 ml Mango Loco); only the artwork is used, the catalog facts are unchanged.
 
 ## Learning log
 
