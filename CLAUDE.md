@@ -39,7 +39,7 @@ Read these before working:
 | Tests | Vitest, for `src/lib/` only | M3 |
 | Animation | Motion | M2+ |
 | 3D | React Three Fiber + drei | M6 |
-| Accounts, database, skin hosting | Supabase (`@supabase/supabase-js`): email-link sign-in, Postgres with RLS, Storage | v1.2 |
+| Accounts, database, skin hosting | Supabase (`@supabase/supabase-js`): email + password sign-in, Postgres with RLS, Storage | v1.2 |
 | Hosting | Vercel (static build, `vercel.json` rewrites every path to `index.html`) | v1.2 |
 
 ## Project structure

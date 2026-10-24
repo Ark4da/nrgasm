@@ -41,7 +41,7 @@ The project has two purposes:
 | Catalog grid | All cans as cards, responsive |
 | Can card | Can visual, name, line, key facts, tried mark, rating |
 | Can page `/can/:id` | Full details, rating, tasting notes |
-| Tried / rating / notes | Stored per account in Supabase after signing in by email link; guests can only browse |
+| Tried / rating / notes | Stored per account in Supabase after signing in with email and password; guests can only browse |
 | Search and filters | By name, line, tried / not tried, rating |
 | 3D hero on `/` | Rotating cans (React Three Fiber) with a static fallback |
 | Stats `/stats` | "Tried 12 of 48", top rated, per-line breakdown |
@@ -112,7 +112,7 @@ type UserData = Record<CanId, TastingEntry>;
 | `/can/:id` | Can page | M4 |
 | `/compare?a=&b=` | Two cans side by side | v1.1 |
 | `/stats` | Stats + export / import (guests: sign-in prompt) | M7 |
-| `/sign-in` | Email sign-in link | v1.2 |
+| `/sign-in` | Sign in or create an account (email + password) | v1.2 |
 
 ## Milestones
 
@@ -136,7 +136,7 @@ Only the current milestone gets a detailed implementation plan.
 |---|---|
 | A guest tries to mark, rate, or write a note | "Sign in to keep track of your cans" dialog; nothing is saved |
 | Saving a change fails (offline, server error) | The change is undone on screen and a notice says so |
-| A sign-in link expired or was opened in another browser | The sign-in page explains it and offers a new link |
+| Wrong password, or an email that already has an account | The sign-in page says so in plain words |
 | The account cache in localStorage cannot be read | Start from the database copy; never crash |
 | `/can/<unknown-id>` | "Can not found" page with a link back to the catalog |
 | A can has no image | Neutral placeholder in the can's `flavorColor` |
