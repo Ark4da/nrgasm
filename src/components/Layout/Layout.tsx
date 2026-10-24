@@ -3,7 +3,7 @@ import { NavLink, Outlet, ScrollRestoration, useNavigate } from 'react-router';
 import { cans } from '../../data/cans';
 import { useAuth } from '../../hooks/useAuth';
 import { useUserData } from '../../hooks/useUserData';
-import { authErrorFromUrl } from '../../lib/authUrl';
+import { authErrorFromUrl, unusedSignInCode } from '../../lib/authUrl';
 import { AccountMenu } from '../AccountMenu/AccountMenu';
 import { SignInPrompt } from '../SignInPrompt/SignInPrompt';
 import { MoveDataPrompt } from '../MoveDataPrompt/MoveDataPrompt';
@@ -28,6 +28,16 @@ export function Layout() {
       navigate('/sign-in', { replace: true, state: { authError } });
     }
   }, [navigate]);
+
+  // A link opened in another browser (or past its 5 minutes) gives no error,
+  // only a code left in the address of someone who is still a guest.
+  useEffect(() => {
+    if (auth.status !== 'guest') return;
+    const authError = unusedSignInCode(window.location.href);
+    if (authError) {
+      navigate('/sign-in', { replace: true, state: { authError } });
+    }
+  }, [auth.status, navigate]);
 
   return (
     <div className={styles.shell}>

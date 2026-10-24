@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { authErrorFromUrl } from './authUrl';
+import { authErrorFromUrl, unusedSignInCode } from './authUrl';
 
 describe('authErrorFromUrl', () => {
   it('explains an expired or reused link', () => {
@@ -18,5 +18,17 @@ describe('authErrorFromUrl', () => {
 
   it('returns null without an error', () => {
     expect(authErrorFromUrl('https://nrgasm.vercel.app/catalog?code=abc')).toBeNull();
+  });
+});
+
+describe('unusedSignInCode', () => {
+  it('explains a sign-in code left in the address of a guest', () => {
+    expect(unusedSignInCode('https://nrgasm.vercel.app/catalog?code=abc')).toBe(
+      'This sign-in link was opened in a different browser or app, or it ran out. Ask for a new link here, and open it in this browser.',
+    );
+  });
+
+  it('says nothing without a code', () => {
+    expect(unusedSignInCode('https://nrgasm.vercel.app/catalog?line=Ultra')).toBeNull();
   });
 });

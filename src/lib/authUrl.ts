@@ -18,3 +18,15 @@ export function authErrorFromUrl(url: string): string | null {
   }
   return null;
 }
+
+/**
+ * A sign-in link that could not be used here (opened in another browser or a
+ * mail app's built-in one, or past its 5 minutes) leaves `?code=` in the
+ * address with no error. A successful sign-in removes the code first, so a
+ * code still there once the visitor is known to be a guest means it failed.
+ */
+export function unusedSignInCode(url: string): string | null {
+  return new URL(url).searchParams.has('code')
+    ? 'This sign-in link was opened in a different browser or app, or it ran out. Ask for a new link here, and open it in this browser.'
+    : null;
+}
