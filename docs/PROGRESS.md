@@ -53,6 +53,7 @@ Legend for who makes each file:
 | 2026-10-23 | The owner supplied the Monster Energy label (`public/cans/monster-energy.jpg`, padded with black to 1.38 : 1) | The owner's call; the brand rule only forbids Claude drawing the artwork |
 | 2026-10-23 | Skins may be stitched from the photos on energy-drink-cans.onrender.com (© Energy Drink Cans UK), local use only; `public/cans/` is git-ignored | The owner chose this over shooting their own cans; the photos are not ours to publish |
 | 2026-10-23 | With a skin, the can's neck takes the label's top-edge color; only the lid and base stay metal | The owner asked for no bare silver on skinned cans |
+| 2026-10-24 | Replaces the row above: the label's top strip (about 7%, the neck's slant out of the printed length) is printed on the neck up to the lid | Real cans carry their top band ("VITAMINS + TAURINE …") onto the shoulder; the owner asked for it |
 | 2026-10-23 | The catalog covers every Monster sold in Europe or the US, current and discontinued, all lines (incl. coffee, Hydro, Muscle); one entry per flavor with `regions` | The owner's choice; avoids duplicate cards per region |
 | 2026-10-23 | Facts come from cited sources only, with `factsRegion` and `source`: official UK/DE pages (EU, 500 ml: caffeine, sugar), official US pages (caffeine, calories; sugar only when 0), Energy Drink Mania for discontinued cans (volume, caffeine, calories) | Keeps "never invent facts" while filling the catalog; the owner can check every number |
 | 2026-10-23 | "Discontinued" = not on the official US, UK, or German product lists as of October 2026 | A rule anyone can re-check |
@@ -137,6 +138,7 @@ Legend for who makes each file:
 
 - 13 labels from the owner's folder: 5 scans of flattened cans (rotated 90°, cropped, one full turn found by matching the image against itself, about 708 px) and 8 flat print files (front moved to the middle, the back filled in the edge's dominant color).
 - Replaced: Rehab Tea + Lemonade, Rehab Green Tea, Assault, Zero Ultra, Khaotic, Ultra Rosá, Mango Loco, Ultra Blue, VR46 The Doctor. New: Java Irish Crème, Java Salted Caramel, Java Mean Bean, The Original Zero Sugar. 68 of 144 cans have skins.
+- The neck now carries the label's top strip, so bands like "KHAOTIC" or "ROSSI VR|46" sit on the shoulder up to the lid. Fixed on the way: a material first built without a map ignored the texture (separate `key`s), and a cloned texture needs `needsUpdate`.
 - Some sources are other regions' cans (Canadian 458/473 ml scans, a Ukrainian 355 ml Mango Loco); only the artwork is used, the catalog facts are unchanged.
 
 ## Learning log
