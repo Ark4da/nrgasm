@@ -19,9 +19,27 @@ function fill(part: number, whole: number): CSSProperties {
 }
 
 export function StatsPage() {
-  const { data } = useUserData();
+  const { data, mode } = useUserData();
   const stats = computeStats(cans, data);
   const mostCommon = Math.max(...Object.values(stats.distribution));
+
+  if (mode === 'guest') {
+    return (
+      <div className={styles.page}>
+        <title>Stats | NRGASM</title>
+        <h1 className={styles.title}>Stats</h1>
+        <section className={styles.empty}>
+          <h2 className={styles.heading}>Sign in to see your stats</h2>
+          <p className={styles.emptyText}>
+            Your stats count the cans you have tried and rated. Sign in to start keeping track, on any device.
+          </p>
+          <Link to="/sign-in" className={buttonClass('primary')}>
+            Sign in
+          </Link>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
@@ -156,7 +174,7 @@ export function StatsPage() {
       <section className={styles.panel}>
         <h2 className={styles.heading}>Your data</h2>
         <p className={styles.muted}>
-          Everything is stored in this browser. Export a JSON file to back it up or move it to another browser.
+          Your tastings are saved to your account. Export a JSON file to keep a copy of your own.
         </p>
         <DataTransfer />
       </section>

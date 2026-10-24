@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import type { UserData } from '../types/tasting';
-import { BACKUP_KEY, STORAGE_KEY, loadUserData, saveUserData, type KeyValueStorage } from './storage';
+import {
+  BACKUP_KEY,
+  STORAGE_KEY,
+  loadUserData,
+  readCache,
+  saveUserData,
+  userCacheKey,
+  writeCache,
+  type KeyValueStorage,
+} from './storage';
 
 function memoryStorage(initial: Record<string, string> = {}): KeyValueStorage & { items: Record<string, string> } {
   const items = { ...initial };
@@ -62,5 +71,24 @@ describe('saveUserData', () => {
     const storage = memoryStorage();
     saveUserData(storage, sample);
     expect(loadUserData(storage).data).toEqual(sample);
+  });
+});
+
+describe('account cache', () => {
+  it('builds the per-account cache key', () => {
+    expect(userCacheKey('u1')).toBe('nrgasm:v1:user:u1');
+  });
+
+  it('reads back what it wrote, for that account only', () => {
+    const storage = memoryStorage();
+    writeCache(storage, 'u1', sample);
+    expect(readCache(storage, 'u1')).toEqual(sample);
+    expect(readCache(storage, 'u2')).toEqual({});
+  });
+
+  it('treats an unreadable cache as empty and leaves the legacy key alone', () => {
+    const storage = memoryStorage({ 'nrgasm:v1:user:u1': '{broken', [STORAGE_KEY]: JSON.stringify(sample) });
+    expect(readCache(storage, 'u1')).toEqual({});
+    expect(storage.items[STORAGE_KEY]).toBe(JSON.stringify(sample));
   });
 });

@@ -50,7 +50,7 @@ export function DataTransfer() {
     if (status.kind !== 'confirm') {
       return;
     }
-    replaceAll(status.data);
+    void replaceAll(status.data);
     setStatus({ kind: 'done', message: `Imported ${status.fileName}.` });
   }
 

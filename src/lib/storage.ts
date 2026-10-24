@@ -37,3 +37,28 @@ export function loadUserData(storage: KeyValueStorage): LoadResult {
 export function saveUserData(storage: KeyValueStorage, data: UserData): void {
   storage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
+
+// A signed-in account's last loaded tastings, so the next visit (or an
+// offline one) shows them at once. One key per account: on a shared
+// computer one person's cache never shows up for another.
+
+export function userCacheKey(userId: string): string {
+  return `nrgasm:v1:user:${userId}`;
+}
+
+/** The cached tastings of one account; empty when there are none or they cannot be read. */
+export function readCache(storage: KeyValueStorage, userId: string): UserData {
+  const raw = storage.getItem(userCacheKey(userId));
+  if (raw === null) {
+    return {};
+  }
+  try {
+    return parseUserData(JSON.parse(raw)) ?? {};
+  } catch {
+    return {};
+  }
+}
+
+export function writeCache(storage: KeyValueStorage, userId: string, data: UserData): void {
+  storage.setItem(userCacheKey(userId), JSON.stringify(data));
+}
