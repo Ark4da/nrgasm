@@ -7,8 +7,23 @@ const now = new Date('2026-10-23T12:00:00.000Z');
 describe('updateEntry', () => {
   it('creates an entry for a new can', () => {
     expect(updateEntry({}, 'khaotic', { tried: true }, now)).toEqual({
-      khaotic: { tried: true, rating: null, note: '', updatedAt: now.toISOString() },
+      khaotic: { tried: true, wantToTry: false, rating: null, note: '', updatedAt: now.toISOString() },
     });
+  });
+
+  it('keeps a can the user wants to try', () => {
+    expect(updateEntry({}, 'khaotic', { wantToTry: true }, now).khaotic).toMatchObject({ wantToTry: true, tried: false });
+  });
+
+  it('drops "want to try" once the can is tried or rated', () => {
+    const wanted = updateEntry({}, 'khaotic', { wantToTry: true }, now);
+    expect(updateEntry(wanted, 'khaotic', { tried: true }, now).khaotic.wantToTry).toBe(false);
+    expect(updateEntry(wanted, 'khaotic', { rating: 4 }, now).khaotic.wantToTry).toBe(false);
+  });
+
+  it('removes an entry when "want to try" is the only thing left and it is cleared', () => {
+    const wanted = updateEntry({}, 'khaotic', { wantToTry: true }, now);
+    expect(updateEntry(wanted, 'khaotic', { wantToTry: false }, now)).toEqual({});
   });
 
   it('does not mutate the input', () => {

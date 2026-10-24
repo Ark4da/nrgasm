@@ -12,12 +12,17 @@ export function isRating(value: unknown): value is Rating {
   return value === 1 || value === 2 || value === 3 || value === 4 || value === 5;
 }
 
-export function isTastingEntry(value: unknown): value is TastingEntry {
+/** A stored entry: like TastingEntry, but `wantToTry` may be missing in older data. */
+type StoredEntry = Omit<TastingEntry, 'wantToTry'> & { wantToTry?: boolean };
+
+export function isTastingEntry(value: unknown): value is StoredEntry {
   if (!isRecord(value)) {
     return false;
   }
   return (
     typeof value.tried === 'boolean' &&
+    // Missing in data saved before "want to try" existed
+    (value.wantToTry === undefined || typeof value.wantToTry === 'boolean') &&
     (value.rating === null || isRating(value.rating)) &&
     typeof value.note === 'string' &&
     typeof value.updatedAt === 'string' &&
@@ -37,6 +42,7 @@ export function parseUserData(value: unknown): UserData | null {
     }
     data[id] = {
       tried: entry.tried,
+      wantToTry: entry.wantToTry ?? false,
       rating: entry.rating,
       note: entry.note,
       updatedAt: entry.updatedAt,

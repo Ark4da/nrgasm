@@ -4,6 +4,7 @@ import { Layout } from './components/Layout/Layout'
 import { HomePage } from './pages/HomePage/HomePage'
 import { CatalogPage } from './pages/CatalogPage/CatalogPage'
 import { CanPage } from './pages/CanPage/CanPage'
+import { ComparePage } from './pages/ComparePage/ComparePage'
 import { StatsPage } from './pages/StatsPage/StatsPage'
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage'
 
@@ -15,6 +16,7 @@ const router = createBrowserRouter([
       { index: true, Component: HomePage },
       { path: 'catalog', Component: CatalogPage },
       { path: 'can/:id', Component: CanPage },
+      { path: 'compare', Component: ComparePage },
       { path: 'stats', Component: StatsPage },
       { path: '*', Component: NotFoundPage },
     ],

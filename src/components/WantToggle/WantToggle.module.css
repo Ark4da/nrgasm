@@ -1,0 +1,19 @@
+.toggle {
+  composes: toggle from '../TriedToggle/TriedToggle.module.css';
+}
+
+.on {
+  composes: on from '../TriedToggle/TriedToggle.module.css';
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  transition: fill var(--duration-fast) var(--ease-out);
+}
+
+/* The bookmark fills in when the can is on the list */
+.on .icon {
+  fill: currentColor;
+}

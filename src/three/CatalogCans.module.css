@@ -7,3 +7,18 @@
   z-index: 1;
   pointer-events: none;
 }
+
+/* An interactive can: drag it sideways; a vertical swipe still scrolls the page */
+.grab {
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.grab:active {
+  cursor: grabbing;
+}
+
+.fill {
+  width: 100%;
+  height: 100%;
+}

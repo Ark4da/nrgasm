@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- NRGASM app icon: an acid-green N on the app's dark background -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#95d600" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#95d600" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="#090a0c"/>
+  <circle cx="256" cy="256" r="230" fill="url(#glow)"/>
+  <path d="M150 384V128h62l90 150V128h60v256h-62l-90-150v150z" fill="#95d600"/>
+</svg>

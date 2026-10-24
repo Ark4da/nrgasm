@@ -4,7 +4,7 @@ import { exportFileName, parseImport, serializeExport } from './transfer';
 
 const now = new Date('2026-10-23T12:00:00.000Z');
 const data: UserData = {
-  'mango-loco': { tried: true, rating: 4, note: 'Tropical', updatedAt: now.toISOString() },
+  'mango-loco': { tried: true, wantToTry: false, rating: 4, note: 'Tropical', updatedAt: now.toISOString() },
 };
 
 describe('export / import', () => {

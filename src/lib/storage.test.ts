@@ -14,7 +14,7 @@ function memoryStorage(initial: Record<string, string> = {}): KeyValueStorage & 
 }
 
 const sample: UserData = {
-  'mango-loco': { tried: true, rating: 4, note: 'Sweet', updatedAt: '2026-10-23T10:00:00.000Z' },
+  'mango-loco': { tried: true, wantToTry: false, rating: 4, note: 'Sweet', updatedAt: '2026-10-23T10:00:00.000Z' },
 };
 
 describe('loadUserData', () => {
@@ -25,6 +25,18 @@ describe('loadUserData', () => {
   it('reads valid data', () => {
     const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(sample) });
     expect(loadUserData(storage)).toEqual({ data: sample, recovered: false });
+  });
+
+  it('reads entries saved before "want to try" existed', () => {
+    const old = { 'mango-loco': { tried: true, rating: 4, note: 'Sweet', updatedAt: '2026-10-23T10:00:00.000Z' } };
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(old) });
+    expect(loadUserData(storage)).toEqual({ data: sample, recovered: false });
+  });
+
+  it('rejects a "want to try" that is not a boolean', () => {
+    const bad = { 'mango-loco': { ...sample['mango-loco'], wantToTry: 'yes' } };
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(bad) });
+    expect(loadUserData(storage).recovered).toBe(true);
   });
 
   it('recovers from broken JSON and backs the raw value up', () => {
