@@ -2,8 +2,8 @@
 
 ## Now
 
-- **Milestone:** v1.1 UX pass done (want to try, sort and new filters, compare, PWA, 64 skins). Not committed yet: the owner reviews first.
-- **Next step:** the owner reviews the code and the site, then commits. Open: HTTPS for the phone over the LAN (see Open questions).
+- **Milestone:** v1.2 accounts and deploy, built on branch `feat/accounts` (not merged yet).
+- **Next step:** the owner follows `docs/DEPLOY.md` (Supabase project, migration, bucket, Vercel) and checks sign-in on the live site.
 
 Legend for who makes each file:
 
@@ -68,6 +68,11 @@ Legend for who makes each file:
 | 2026-10-24 | The owner's label scans and print files (`E:ImagesMonster_label`) replace the photo skins where both exist | Flat artwork is sharper and shows the whole can; the replaced skins are kept outside the repo |
 | 2026-10-24 | A print file narrower than 1.382 : 1 gets a fill at the back in the label's own background color, not a stretch | Stretching would squash the logo by up to 17% |
 | 2026-10-24 | Taste descriptions live in `src/data/tastes.ts` (keyed by can id, merged into `cans`), each with its source links | Keeps `cans.ts` lines readable; every claim can be checked |
+| 2026-10-24 | Accounts: Supabase (email-link sign-in, Postgres with RLS, Storage) with the static site on Vercel | Fewest moving parts; one new dependency; no own server |
+| 2026-10-24 | Sign-up is meant for everyone; the first launch uses Supabase's built-in email (team members only, 2 per hour) | A custom domain and SMTP open it later without code changes |
+| 2026-10-24 | Guests browse only; marking, rating, and notes need an account | The owner's choice |
+| 2026-10-24 | Tastings are private; each can shows the average of everyone's ratings and their count | The owner's choice; totals live in `can_rating_stats`, kept by a trigger, never a view or definer function in `public` |
+| 2026-10-24 | All 68 skins are published from a public Supabase Storage bucket, not from git | The owner's decision, accepting the takedown risk; the GitHub repository stays free of third-party photos |
 | 2026-10-24 | Descriptions are written in our own words from the official page, the Energy Drink Mania review, and the Monster Energy wiki; no source, no description | "Never invent product facts"; copying the reviews word for word is not ours to publish |
 
 ## Session log
@@ -150,6 +155,16 @@ Legend for who makes each file:
 - No description for 17 cans: 10 have no usable source (Export, BFC, M3, Java Big Black, Hydro Mean Green, both Hydrosport, three Muscle), and for 7 the official page only repeats the short flavor line (Zero Sugar, The Original Zero Sugar, Lando Norris, Full Throttle, Top Speed, VR46 Zero Sugar, Viking Berry).
 - Where a review describes another country's can, the text says so (Reserve Watermelon: US can).
 - `sourceName` in `src/lib/format.ts` turns a source URL into a readable name (tests first); 73 tests pass.
+
+### 2026-10-24: Accounts and deploy (v1.2)
+
+- Brainstormed with the owner, wrote the spec (`docs/superpowers/specs/2026-10-24-accounts-and-deploy-design.md`) and the plan (`docs/superpowers/plans/2026-10-24-accounts-and-deploy.md`); built it on branch `feat/accounts`.
+- `supabase/migrations/20261024000000_tastings.sql`: `tasting_entries` with RLS, `can_rating_stats` with a trigger in a private schema. Checked on PGlite with stand-ins for Supabase's `auth` schema and roles (13 checks).
+- New pure logic with tests first: `rows`, `merge`, `queue`, `ratings`, `skins`, `authUrl`, account cache keys in `storage`. 103 tests pass.
+- `src/services/` (Supabase client, auth, entries, ratings); `authStore`; `userDataStore` now has a guest mode and a signed-in mode that writes in the background, one write at a time per can, and undoes a failed one.
+- UI: `/sign-in`, account menu (an icon on phones), sign-in prompt for guests, "Move your tastings?" dialog, "★ 4.2 · 37 ratings" on cards and can pages; notes save 600 ms after the last key.
+- `vercel.json`, `.env.example`, `docs/DEPLOY.md` (Supabase, skins bucket, Vercel, opening sign-up later).
+- Not checked yet: anything that needs a live Supabase project (sign-in, saving, moving data, community ratings, skins from Storage). The owner runs those checks while following `docs/DEPLOY.md`.
 
 ## Learning log
 

@@ -41,7 +41,7 @@ The project has two purposes:
 | Catalog grid | All cans as cards, responsive |
 | Can card | Can visual, name, line, key facts, tried mark, rating |
 | Can page `/can/:id` | Full details, rating, tasting notes |
-| Tried / rating / notes | Stored in the browser (localStorage) |
+| Tried / rating / notes | Stored per account in Supabase after signing in by email link; guests can only browse |
 | Search and filters | By name, line, tried / not tried, rating |
 | 3D hero on `/` | Rotating cans (React Three Fiber) with a static fallback |
 | Stats `/stats` | "Tried 12 of 48", top rated, per-line breakdown |
@@ -99,7 +99,8 @@ type UserData = Record<CanId, TastingEntry>;
 ```
 
 - **Catalog.** Lives in `src/data/cans.ts`, is typed as `Can[]`, and is versioned in git.
-- **User data.** Stored in localStorage under the key `nrgasm:v1`, keyed by `CanId`. It never duplicates catalog fields.
+- **User data.** One row per user and can in Supabase's `tasting_entries` (`user_id, can_id, tried, want_to_try, rating, note, updated_at`), private to its user by Row Level Security, cached per account in localStorage (`nrgasm:v1:user:<userId>`). It never duplicates catalog fields.
+- **Community rating.** `can_rating_stats` (`can_id, rating_count, rating_sum`) holds totals only, kept by a database trigger and readable by everyone.
 - **Catalog facts.** Caffeine, sugar, and volume are entered only after the owner has verified them. Unknown values stay empty, and the UI shows "—".
 
 ## Routes
@@ -110,7 +111,8 @@ type UserData = Record<CanId, TastingEntry>;
 | `/catalog` | Grid + search and filters | M2, M5 |
 | `/can/:id` | Can page | M4 |
 | `/compare?a=&b=` | Two cans side by side | v1.1 |
-| `/stats` | Stats + export / import | M7 |
+| `/stats` | Stats + export / import (guests: sign-in prompt) | M7 |
+| `/sign-in` | Email sign-in link | v1.2 |
 
 ## Milestones
 
@@ -132,7 +134,10 @@ Only the current milestone gets a detailed implementation plan.
 
 | Situation | Behaviour |
 |---|---|
-| localStorage holds invalid data or an unknown version | Start with an empty collection, show a notice, never crash |
+| A guest tries to mark, rate, or write a note | "Sign in to keep track of your cans" dialog; nothing is saved |
+| Saving a change fails (offline, server error) | The change is undone on screen and a notice says so |
+| A sign-in link expired or was opened in another browser | The sign-in page explains it and offers a new link |
+| The account cache in localStorage cannot be read | Start from the database copy; never crash |
 | `/can/<unknown-id>` | "Can not found" page with a link back to the catalog |
 | A can has no image | Neutral placeholder in the can's `flavorColor` |
 | WebGL unavailable | Static can visuals instead of the 3D scene |

@@ -39,6 +39,8 @@ Read these before working:
 | Tests | Vitest, for `src/lib/` only | M3 |
 | Animation | Motion | M2+ |
 | 3D | React Three Fiber + drei | M6 |
+| Accounts, database, skin hosting | Supabase (`@supabase/supabase-js`): email-link sign-in, Postgres with RLS, Storage | v1.2 |
+| Hosting | Vercel (static build, `vercel.json` rewrites every path to `index.html`) | v1.2 |
 
 ## Project structure
 
@@ -51,6 +53,8 @@ src/
 ├─ data/         cans.ts: the catalog, typed as Can[]
 ├─ components/   one folder per component: CanCard/CanCard.tsx + CanCard.module.css
 ├─ lib/          (M3+) pure functions: storage, filters, stats; no React imports
+├─ services/     thin Supabase calls (auth, entries, ratings); no React imports
+├─ hooks/        stores outside React (auth, user data, ratings) and the hooks that read them
 ├─ pages/        (M4+) route screens
 └─ three/        (M6+) 3D scene, loaded only on the home page
 ```
@@ -66,7 +70,8 @@ Rules:
 - **Design tokens only.** Colors, fonts, radii, and spacing come from CSS variables in `src/styles/tokens.css`. Never put a raw hex value in a component.
 - **Two data sources, never mixed.**
   - The catalog is static and lives in `src/data/cans.ts`.
-  - User data is stored in localStorage under the key `nrgasm:v1`, as a map from can `id` to `TastingEntry`.
+  - User data lives in Supabase (`tasting_entries`, one row per user and can, private by Row Level Security), and is cached per account in localStorage under `nrgasm:v1:user:<userId>`. Data saved before accounts (`nrgasm:v1`) is offered for moving at the first sign-in.
+  - Everyone's ratings are only ever read as totals from `can_rating_stats`.
   - Never copy catalog fields into user data.
 - **Pure logic lives in `src/lib/`.** Write the Vitest test first, then the code.
 - **Components** are function components with a typed props interface named `<Component>Props`.
@@ -77,6 +82,8 @@ Rules:
   - Respect `prefers-reduced-motion`.
 - **Brand rule.** Never draw or recreate the Monster logo, the claw mark, or any can artwork. A can's visual is either the owner's own image in `public/cans/` or the neutral placeholder described in `docs/DESIGN.md`.
 - **Catalog facts.** Never invent caffeine, sugar, or other product facts. Unknown fields stay `undefined` until the owner verifies them.
+
+Deploy and setup steps for the owner: `docs/DEPLOY.md`. The schema: `supabase/migrations/`.
 
 ## Commands (run by the owner)
 
