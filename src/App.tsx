@@ -6,6 +6,7 @@ import { CatalogPage } from './pages/CatalogPage/CatalogPage'
 import { CanPage } from './pages/CanPage/CanPage'
 import { ComparePage } from './pages/ComparePage/ComparePage'
 import { StatsPage } from './pages/StatsPage/StatsPage'
+import { SignInPage } from './pages/SignInPage/SignInPage'
 import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage'
 
 const router = createBrowserRouter([
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
       { path: 'can/:id', Component: CanPage },
       { path: 'compare', Component: ComparePage },
       { path: 'stats', Component: StatsPage },
+      { path: 'sign-in', Component: SignInPage },
       { path: '*', Component: NotFoundPage },
     ],
   },
