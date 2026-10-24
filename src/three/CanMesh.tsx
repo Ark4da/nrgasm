@@ -12,37 +12,29 @@ export const CAN_HEIGHT = BODY_HEIGHT + 0.205;
 /** The turn that brings the middle of a label to the camera. */
 export const LABEL_FRONT = -Math.PI / 2;
 
-/** Average color of the label's top edge, so the neck continues the paint instead of bare metal. */
-function topEdgeColor(image: CanvasImageSource & { width: number; height: number }): string | null {
-  const canvas = document.createElement('canvas');
-  canvas.width = 64;
-  canvas.height = 4;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return null;
-  ctx.drawImage(image, 0, 0, image.width, Math.max(1, image.height * 0.02), 0, 0, 64, 4);
-  const data = ctx.getImageData(0, 0, 64, 4).data;
-  let r = 0, g = 0, b = 0;
-  for (let i = 0; i < data.length; i += 4) {
-    r += data[i];
-    g += data[i + 1];
-    b += data[i + 2];
-  }
-  const count = data.length / 4;
-  return `rgb(${Math.round(r / count)}, ${Math.round(g / count)}, ${Math.round(b / count)})`;
-}
+const NECK_HEIGHT = 0.1;
+const NECK_TOP_RADIUS = BODY_RADIUS * 0.82;
+/**
+ * The share of a label's height printed on the neck. Real cans carry their top
+ * band ("VITAMINS + TAURINE …") up the shoulder to the lid, so the label runs on
+ * over the neck: the neck's slant length out of the whole printed length, which
+ * keeps the print at the same scale on both parts.
+ */
+const NECK_SLANT = Math.hypot(NECK_HEIGHT, BODY_RADIUS - NECK_TOP_RADIUS);
+const NECK_SHARE = NECK_SLANT / (NECK_SLANT + BODY_HEIGHT);
 
 interface Label {
   texture: Texture;
   /** True for the owner's unrolled label, false for the drawn placeholder. */
   isOwner: boolean;
-  /** Paint color for the neck; null keeps it bare metal. */
-  neck: string | null;
+  /** The label's top strip for the neck; null keeps the neck bare metal. */
+  neck: Texture | null;
 }
 
 /** The owner's unrolled label when there is one, otherwise the drawn label. */
 function useLabel(can: Can): Label {
   const drawn = useMemo(() => createLabelTexture(can), [can]);
-  const [image, setImage] = useState<{ texture: Texture; neck: string | null } | null>(null);
+  const [image, setImage] = useState<{ texture: Texture; neck: Texture } | null>(null);
 
   useEffect(() => {
     if (!can.label) {
@@ -56,10 +48,19 @@ function useLabel(can: Can): Label {
       // shift the owner's label so its middle, the front, lands there too.
       texture.wrapS = RepeatWrapping;
       texture.offset.x = 0.25;
+      // The body shows the label below its top strip; the neck shows the strip
+      // (v = 1 is the image's top edge)
+      const neck = texture.clone();
+      texture.repeat.y = 1 - NECK_SHARE;
+      neck.repeat.y = NECK_SHARE;
+      neck.offset.y = 1 - NECK_SHARE;
+      // A clone shares the image but starts as "not uploaded yet"
+      neck.needsUpdate = true;
       if (cancelled) {
         texture.dispose();
+        neck.dispose();
       } else {
-        setImage({ texture, neck: topEdgeColor(texture.image as HTMLImageElement) });
+        setImage({ texture, neck });
       }
     });
     return () => {
@@ -68,7 +69,10 @@ function useLabel(can: Can): Label {
   }, [can.label]);
 
   useEffect(() => () => drawn.dispose(), [drawn]);
-  useEffect(() => () => image?.texture.dispose(), [image]);
+  useEffect(() => () => {
+    image?.texture.dispose();
+    image?.neck.dispose();
+  }, [image]);
 
   return image ? { ...image, isOwner: true } : { texture: drawn, isOwner: false, neck: null };
 }
@@ -94,13 +98,15 @@ export function CanMesh({ can, metal }: CanMeshProps) {
           roughness={label.isOwner ? 0.28 : 0.32}
         />
       </mesh>
-      {/* Neck (painted like the label's top edge when there is one), lid, and base */}
-      <mesh position={[0, top + 0.05, 0]}>
-        <cylinderGeometry args={[BODY_RADIUS * 0.82, BODY_RADIUS, 0.1, 64]} />
+      {/* Neck (the label's top strip when there is one), lid, and base. Open-ended:
+          the body hides its bottom, the lid its top. */}
+      <mesh position={[0, top + NECK_HEIGHT / 2, 0]}>
+        <cylinderGeometry args={[NECK_TOP_RADIUS, BODY_RADIUS, NECK_HEIGHT, 64, 1, true]} />
+        {/* Different keys: a material built without a map would not pick one up later */}
         {label.neck ? (
-          <meshStandardMaterial color={label.neck} metalness={0.3} roughness={0.28} />
+          <meshStandardMaterial key="label" map={label.neck} metalness={0.3} roughness={0.28} />
         ) : (
-          <meshStandardMaterial color={metal} metalness={0.9} roughness={0.25} />
+          <meshStandardMaterial key="metal" color={metal} metalness={0.9} roughness={0.25} />
         )}
       </mesh>
       <mesh position={[0, top + 0.11, 0]}>
