@@ -5,10 +5,11 @@
 //   app shell is the fallback when offline.
 // - Built files (/assets/*): their names change with every build, so a
 //   cached copy is always right. Cache first.
-// - Everything else (can images, icons, Google Fonts): show the cached
-//   copy at once and refresh it in the background.
+// - Everything else (can images, icons, Google Fonts, skins from Supabase
+//   Storage): show the cached copy at once and refresh it in the background.
+// - Supabase's API and sign-in are never touched: they must always be live.
 
-const CACHE = 'nrgasm-v1';
+const CACHE = 'nrgasm-v2';
 const SHELL = ['/', '/manifest.webmanifest', '/icon.svg', '/icon-192.png'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -67,6 +68,11 @@ async function staleWhileRevalidate(request) {
   return cached ?? fresh;
 }
 
+/** A file in a public Supabase Storage bucket (the can skins); never /rest/ or /auth/. */
+function isPublicSkin(url) {
+  return url.hostname.endsWith('.supabase.co') && url.pathname.startsWith('/storage/v1/object/public/');
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') {
@@ -79,7 +85,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(networkFirst(request));
   } else if (sameOrigin && url.pathname.startsWith('/assets/')) {
     event.respondWith(cacheFirst(request));
-  } else if (sameOrigin || FONT_HOSTS.includes(url.hostname)) {
+  } else if (sameOrigin || FONT_HOSTS.includes(url.hostname) || isPublicSkin(url)) {
     event.respondWith(staleWhileRevalidate(request));
   }
 });

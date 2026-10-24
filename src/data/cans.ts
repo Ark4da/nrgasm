@@ -1,5 +1,6 @@
 import type { Can, Region } from '../types/can';
 import { tastes } from './tastes';
+import { skinUrl } from '../lib/skins';
 
 // The catalog: every Monster sold in Europe or the US, past and present.
 //
@@ -218,10 +219,19 @@ const catalog: Can[] = [
   { id: 'dub-ballers-blend', name: 'Dub Edition Baller’s Blend', line: 'Dub', flavorColor: '#C9A83C', regions: ['US'], discontinued: true, flavor: 'Punch', ...edm('monster_energy_dub_ballers_blend', 'US', 473, 160, 210), label: '/cans/dub-ballers-blend.jpg' },
 ];
 
+// In production the skins come from the Supabase Storage bucket (VITE_SKIN_BASE_URL);
+// locally they stay in public/cans/, which is git-ignored.
+const SKIN_BASE = import.meta.env.VITE_SKIN_BASE_URL;
+
 // Taste notes live in their own file (tastes.ts); every can picks up its entry here
 export const cans: Can[] = catalog.map((can) => {
   const taste = tastes[can.id];
-  return taste ? { ...can, taste } : can;
+  return {
+    ...can,
+    ...(taste && { taste }),
+    ...(can.label && { label: skinUrl(can.label, SKIN_BASE) }),
+    ...(can.image && { image: skinUrl(can.image, SKIN_BASE) }),
+  };
 });
 
 export function findCan(id: string | undefined): Can | undefined {
