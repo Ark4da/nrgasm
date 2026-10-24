@@ -1,0 +1,80 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 480px;
+  padding: var(--space-8) 0;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 9vw, 76px);
+  font-weight: 800;
+  font-stretch: 62%;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.form,
+.sent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.lead {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  font-stretch: 62%;
+  text-transform: uppercase;
+}
+
+.text {
+  color: var(--color-text-secondary);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.text strong {
+  color: var(--color-text);
+}
+
+.label {
+  color: var(--color-text-hint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background-color: var(--color-elevated);
+  font-size: 16px; /* 16px stops iOS from zooming in on focus */
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.input:hover {
+  border-color: var(--color-text-disabled);
+}
+
+.input:focus-visible {
+  border-color: var(--color-accent);
+  outline-offset: 0;
+}
+
+.error {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.45;
+}

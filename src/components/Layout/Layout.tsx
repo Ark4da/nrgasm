@@ -1,6 +1,10 @@
-import { NavLink, Outlet, ScrollRestoration } from 'react-router';
+import { useEffect } from 'react';
+import { NavLink, Outlet, ScrollRestoration, useNavigate } from 'react-router';
 import { cans } from '../../data/cans';
+import { useAuth } from '../../hooks/useAuth';
 import { useUserData } from '../../hooks/useUserData';
+import { authErrorFromUrl } from '../../lib/authUrl';
+import { AccountMenu } from '../AccountMenu/AccountMenu';
 import styles from './Layout.module.css';
 
 function navClass({ isActive }: { isActive: boolean }): string {
@@ -9,7 +13,18 @@ function navClass({ isActive }: { isActive: boolean }): string {
 
 export function Layout() {
   const { data, notice, dismissNotice } = useUserData();
+  const auth = useAuth();
+  const navigate = useNavigate();
   const triedCount = cans.filter((can) => data[can.id]?.tried).length;
+
+  // A sign-in link that failed (expired, used twice) lands on whatever page it
+  // pointed at, with the reason in the address: show it on the sign-in page.
+  useEffect(() => {
+    const authError = authErrorFromUrl(window.location.href);
+    if (authError) {
+      navigate('/sign-in', { replace: true, state: { authError } });
+    }
+  }, [navigate]);
 
   return (
     <div className={styles.shell}>
@@ -33,12 +48,17 @@ export function Layout() {
               Stats
             </NavLink>
           </nav>
-          <p className={styles.counter}>
-            <span className={styles.counterValue}>{triedCount}</span>
-            <span aria-hidden="true">/</span>
-            <span className="visually-hidden">of</span>
-            {cans.length} tried
-          </p>
+          <div className={styles.account}>
+            {auth.status === 'signed-in' && (
+              <p className={styles.counter}>
+                <span className={styles.counterValue}>{triedCount}</span>
+                <span aria-hidden="true">/</span>
+                <span className="visually-hidden">of</span>
+                {cans.length} tried
+              </p>
+            )}
+            <AccountMenu />
+          </div>
         </div>
       </header>
 
@@ -56,7 +76,7 @@ export function Layout() {
       </main>
 
       <footer className={styles.footer}>
-        <p>Your tastings are saved in this browser only. Export them from Stats to keep a copy.</p>
+        <p>Sign in to keep your tastings on every device. You can export them from Stats at any time.</p>
         <p>A fan project. Not affiliated with Monster Energy.</p>
       </footer>
 

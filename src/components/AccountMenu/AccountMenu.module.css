@@ -1,0 +1,73 @@
+.menu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.email {
+  max-width: 220px;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "Sign in" and "Sign out" look like the nav links */
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--color-accent);
+}
+
+.icon {
+  display: none;
+  width: 22px;
+  height: 22px;
+}
+
+@media (max-width: 860px) {
+  .email {
+    display: none;
+  }
+}
+
+/* Phones: the icon alone, the words stay for screen readers */
+@media (max-width: 560px) {
+  .link {
+    justify-content: center;
+    min-width: 44px;
+    padding: 0;
+  }
+
+  .icon {
+    display: block;
+  }
+
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
