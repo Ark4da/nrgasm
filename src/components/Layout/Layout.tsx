@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useUserData } from '../../hooks/useUserData';
 import { authErrorFromUrl } from '../../lib/authUrl';
 import { AccountMenu } from '../AccountMenu/AccountMenu';
+import { SignInPrompt } from '../SignInPrompt/SignInPrompt';
 import styles from './Layout.module.css';
 
 function navClass({ isActive }: { isActive: boolean }): string {
@@ -12,7 +13,7 @@ function navClass({ isActive }: { isActive: boolean }): string {
 }
 
 export function Layout() {
-  const { data, notice, dismissNotice } = useUserData();
+  const { data, notice, dismissNotice, signInPrompt, closeSignInPrompt } = useUserData();
   const auth = useAuth();
   const navigate = useNavigate();
   const triedCount = cans.filter((can) => data[can.id]?.tried).length;
@@ -80,6 +81,7 @@ export function Layout() {
         <p>A fan project. Not affiliated with Monster Energy.</p>
       </footer>
 
+      <SignInPrompt open={signInPrompt} onClose={closeSignInPrompt} />
       <ScrollRestoration />
     </div>
   );

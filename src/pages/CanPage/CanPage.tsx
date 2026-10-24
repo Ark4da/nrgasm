@@ -1,4 +1,4 @@
-import { lazy, Suspense, useId, useState, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { Link, useParams } from 'react-router';
 import { useReducedMotion } from 'motion/react';
 import type { Can } from '../../types/can';
@@ -17,6 +17,8 @@ import { NotFoundPage } from '../NotFoundPage/NotFoundPage';
 import styles from './CanPage.module.css';
 
 const NOTE_LIMIT = 2000;
+/** Notes are sent this long after the last keystroke, not on every key. */
+const NOTE_DELAY_MS = 600;
 
 // The same 3D code as the catalog: one canvas, and a View the visitor can turn.
 // It loads only after the label font is ready to be drawn on the texture.
@@ -45,12 +47,16 @@ function neighbours(can: Can): { previous?: Can; next?: Can } {
 }
 
 function CanDetails({ can }: { can: Can }) {
-  const { data, updateEntry } = useUserData();
+  const { data, updateEntry, mode, requestSignIn } = useUserData();
   const entry = data[can.id];
   const noteId = useId();
   const tasteId = useId();
-  // A local draft: storage drops blank entries, which would otherwise eat a leading space.
-  const [draft, setDraft] = useState(entry?.note ?? '');
+  // What is being typed; null shows the saved note. Kept locally until it is sent,
+  // so typing stays smooth and a note loaded after the page opened still shows.
+  const [draft, setDraft] = useState<string | null>(null);
+  const note = draft ?? entry?.note ?? '';
+  const pendingNote = useRef<string | null>(null);
+  const noteTimer = useRef<number | undefined>(undefined);
   const { previous, next } = neighbours(can);
   const transitionName = { viewTransitionName: `can-${can.id}` } as CSSProperties;
   const factsBasis = formatFactsBasis(can);
@@ -67,9 +73,29 @@ function CanDetails({ can }: { can: Can }) {
     </div>
   );
 
-  function changeNote(note: string) {
-    setDraft(note);
-    updateEntry(can.id, { note });
+  // Leaving the page sends a note that is still waiting
+  useEffect(() => {
+    const canId = can.id;
+    return () => {
+      window.clearTimeout(noteTimer.current);
+      if (pendingNote.current !== null) updateEntry(canId, { note: pendingNote.current });
+    };
+  }, [can.id, updateEntry]);
+
+  function changeNote(text: string) {
+    if (mode === 'guest') {
+      requestSignIn();
+      return;
+    }
+    setDraft(text);
+    pendingNote.current = text;
+    window.clearTimeout(noteTimer.current);
+    noteTimer.current = window.setTimeout(() => {
+      const value = pendingNote.current;
+      pendingNote.current = null;
+      if (value !== null) updateEntry(can.id, { note: value });
+      setDraft(null);
+    }, NOTE_DELAY_MS);
   }
 
   return (
@@ -183,11 +209,14 @@ function CanDetails({ can }: { can: Can }) {
             <textarea
               id={noteId}
               className={styles.textarea}
-              value={draft}
+              value={note}
               maxLength={NOTE_LIMIT}
               rows={6}
               placeholder="How did it taste? Sweet, sour, flat, would buy again…"
               onChange={(event) => changeNote(event.target.value)}
+              onFocus={() => {
+                if (mode === 'guest') requestSignIn();
+              }}
             />
             {/* One tap adds a #tag to the note; a second tap removes it */}
             <div className={styles.tags} role="group" aria-label="Quick tags">
@@ -196,8 +225,8 @@ function CanDetails({ can }: { can: Can }) {
                   key={tag.id}
                   type="button"
                   className={styles.tag}
-                  aria-pressed={hasNoteTag(draft, tag.id)}
-                  onClick={() => changeNote(toggleNoteTag(draft, tag.id))}
+                  aria-pressed={hasNoteTag(note, tag.id)}
+                  onClick={() => changeNote(toggleNoteTag(note, tag.id))}
                 >
                   {tag.label}
                 </button>
@@ -206,7 +235,7 @@ function CanDetails({ can }: { can: Can }) {
             <p className={styles.saved}>
               {entry ? `Saved ${formatDateTime(entry.updatedAt)}` : 'Notes save as you type'}
               <span>
-                {draft.length} / {NOTE_LIMIT}
+                {note.length} / {NOTE_LIMIT}
               </span>
             </p>
           </div>
