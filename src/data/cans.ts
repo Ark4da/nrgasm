@@ -52,9 +52,7 @@ const catalog: Can[] = [
   // Original
   { id: 'monster-energy', name: 'Monster Energy', line: 'Original', flavorColor: '#3F8F2A', regions: ['EU', 'US'], flavor: 'Sweet and salty — it tastes like Monster!', ...uk('monster-energy/original-green/', 160, 55) },
   { id: 'lo-carb', name: 'Lo-Carb', line: 'Original', flavorColor: '#3C7DD9', regions: ['US'], flavor: 'Sweet and salty — it tastes like Lo-Carb Monster!', ...us('monster-energy/lo-carb/', 140, 30, OZ_16) },
-  { id: 'zero-sugar', name: 'Zero Sugar', line: 'Original', flavorColor: '#2C6FB7', regions: ['EU', 'US'], flavor: 'Sweet and salty', ...uk('monster-energy/zero-sugar-monster-energy/', 160, 0) },
-  { id: 'original-zero-sugar', name: 'The Original Zero Sugar', line: 'Original', flavorColor: '#4FA33A', regions: ['EU'], flavor: 'Sweet and salty', ...uk('monster-energy/zero-sugar/', 160, 0) },
-  { id: 'assault', name: 'Assault', line: 'Original', flavorColor: '#7A2E2E', regions: ['EU'], flavor: 'Bourbon cola + Monster', ...uk('monster-energy/assault/', 160, 54) },
+  { id: 'zero-sugar', name: 'Zero Sugar', line: 'Original', flavorColor: '#2C6FB7', regions: ['EU', 'US'], flavor: 'Sweet and salty', ...uk('monster-energy/zero-sugar-monster-energy/', 160, 0) },  { id: 'assault', name: 'Assault', line: 'Original', flavorColor: '#7A2E2E', regions: ['EU'], flavor: 'Bourbon cola + Monster', ...uk('monster-energy/assault/', 160, 54) },
   { id: 'vanilla-shot', name: 'Vanilla Shot', line: 'Original', flavorColor: '#E8DCC0', regions: ['US'], flavor: 'Sweet and salty with a twist of creamy vanilla', ...us('monster-energy/monster-energy-vanilla-shot/', 160, 220, OZ_16) },
   { id: 'zero-sugar-vanilla-shot', name: 'Zero Sugar Vanilla Shot', line: 'Original', flavorColor: '#D9CBA8', regions: ['US'], flavor: 'Sweet and salty with a twist of creamy vanilla', ...us('monster-energy/zero-sugar-vanilla-shot/', 160, 10, OZ_16, 0) },
   { id: 'strawberry-shot', name: 'Strawberry Shot', line: 'Original', flavorColor: '#D94A5C', regions: ['US'], flavor: 'Sweet and salty with a hint of strawberry', ...us('monster-energy/strawberry-shot/', 160, 220, OZ_16) },
