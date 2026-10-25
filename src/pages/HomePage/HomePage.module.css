@@ -9,7 +9,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   align-items: center;
   gap: var(--space-6);
-  min-height: calc(100svh - 64px - var(--space-6));
+  min-height: calc(100svh - var(--header-height) - var(--space-6));
   padding: var(--space-6) 0;
 }
 

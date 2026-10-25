@@ -39,7 +39,7 @@
 /* The exhibit: the can on a glow in its own color (--glow), pinned while the details scroll */
 .visual {
   position: sticky;
-  top: calc(64px + var(--space-5));
+  top: calc(var(--header-height) + var(--space-5));
   display: flex;
   align-items: center;
   justify-content: center;

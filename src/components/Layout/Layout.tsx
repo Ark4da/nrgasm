@@ -57,6 +57,9 @@ export function Layout() {
             <NavLink to="/compare" className={navClass} viewTransition>
               Compare
             </NavLink>
+            <NavLink to="/ratings" className={navClass} viewTransition>
+              Ratings
+            </NavLink>
             <NavLink to="/stats" className={navClass} viewTransition>
               Stats
             </NavLink>

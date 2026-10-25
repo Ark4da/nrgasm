@@ -111,6 +111,7 @@ type UserData = Record<CanId, TastingEntry>;
 | `/catalog` | Grid + search and filters | M2, M5 |
 | `/can/:id` | Can page | M4 |
 | `/compare?a=&b=` | Two cans side by side | v1.1 |
+| `/ratings` | Community chart: every rated can, best first, by everyone's ratings (open to guests) | v1.3 |
 | `/stats` | Stats + export / import (guests: sign-in prompt) | M7 |
 | `/sign-in` | Sign in or create an account (email + password) | v1.2 |
 

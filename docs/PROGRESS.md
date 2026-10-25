@@ -76,6 +76,8 @@ Legend for who makes each file:
 | 2026-10-24 | Sign-in changed from an email link to email + password, with "Confirm email" off in Supabase; no password reset yet | Friends hit the built-in email limit (2 per hour, team only); without confirmation no email is sent. Cost: addresses are not verified |
 | 2026-10-24 | A skin is found by file name: `public/cans/<can id>.jpg` (or .png, .webp); `src/data/skinFiles.json` lists the files, is rewritten by a Vite plugin, and is committed | The owner can add a skin by dropping a file; the explicit `label` lines in `cans.ts` were removed |
 | 2026-10-24 | Descriptions are written in our own words from the official page, the Energy Drink Mania review, and the Monster Energy wiki; no source, no description | "Never invent product facts"; copying the reviews word for word is not ours to publish |
+| 2026-10-25 | The `/ratings` chart ranks by a weighted average: every can starts with 3 votes at the overall average; ties go to more ratings, then the name. The plain average is what it shows | One 5-star vote must not top cans that many people rated highly |
+| 2026-10-25 | On phones (≤520px) the header has two rows: wordmark and account on top, the four links below; its height is the `--header-height` token | Four links and the account icon need about 490px in one row |
 
 ## Session log
 
@@ -167,6 +169,15 @@ Legend for who makes each file:
 - UI: `/sign-in`, account menu (an icon on phones), sign-in prompt for guests, "Move your tastings?" dialog, "★ 4.2 · 37 ratings" on cards and can pages; notes save 600 ms after the last key.
 - `vercel.json`, `.env.example`, `docs/DEPLOY.md` (Supabase, skins bucket, Vercel, opening sign-up later).
 - Not checked yet: anything that needs a live Supabase project (sign-in, saving, moving data, community ratings, skins from Storage). The owner runs those checks while following `docs/DEPLOY.md`.
+
+### 2026-10-25: Community ratings page
+
+- New `/ratings` page and a "Ratings" link in the header: every rated can, best first, with its rank, can, line, average (bar on wide screens), and number of ratings. Open to guests.
+- `rankCans` in `src/lib/ratings.ts` (tests first); 126 tests pass.
+- `ratingsStore` now has a status (`loading` / `ready` / `failed`), read by `useCommunityRatingsStatus`, so the page tells "loading", "did not load", and "no ratings yet" apart.
+- The header got a second row on phones; `FilterBar`, `CanPage`, and `HomePage` now use `--header-height` instead of a fixed 64px.
+- Checked in the built-in browser at 1024, 375, and 320 px with stand-in ratings (removed afterwards): no horizontal scroll, the catalog's sticky search sits right under the header. Build and lint pass.
+- Not checked yet: the page with real ratings from Supabase (needs `.env.local`).
 
 ## Learning log
 
