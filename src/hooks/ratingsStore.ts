@@ -6,7 +6,10 @@ import { fetchRatingStats } from '../services/ratings';
 // and signed-in users alike. Until it arrives, or if it fails, it is empty
 // and the cards simply show no community rating.
 
+export type RatingsStatus = 'loading' | 'ready' | 'failed';
+
 let ratings: Record<CanId, CommunityRating> = {};
+let status: RatingsStatus = 'loading';
 let requested = false;
 const listeners = new Set<() => void>();
 
@@ -16,15 +19,19 @@ function loadOnce() {
   fetchRatingStats()
     .then((rows) => {
       ratings = ratingsFromStats(rows);
-      listeners.forEach((listener) => listener());
+      status = 'ready';
     })
     .catch(() => {
-      // No community ratings this time; nothing else depends on them
-    });
+      // No community ratings this time; only the ratings page says so
+      status = 'failed';
+    })
+    .finally(() => listeners.forEach((listener) => listener()));
 }
 
 export const ratingsStore = {
   getSnapshot: (): Record<CanId, CommunityRating> => ratings,
+
+  getStatus: (): RatingsStatus => status,
 
   subscribe(listener: () => void): () => void {
     listeners.add(listener);

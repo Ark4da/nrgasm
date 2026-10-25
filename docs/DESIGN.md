@@ -75,6 +75,7 @@ Tokens: `--font-display`, `--font-body`, `--font-mono`.
 - **Radii:** `--radius-control: 10px` for buttons, inputs, and tags; `--radius-card: 24px` for cards.
 - **Borders:** always 1px.
 - **Spacing scale:** 4, 8, 12, 16, 24, 32, 48, 64. The tokens are `--space-1` to `--space-8`.
+- **Header height:** `--header-height` is 64px, and 108px at 520px and below, where the navigation takes a second row. Anything sticky below the header uses it.
 - **Touch targets:** at least 44px high.
 
 ## Motion
