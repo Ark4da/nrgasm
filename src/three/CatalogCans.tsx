@@ -99,15 +99,20 @@ const KEY_STEP = 0.35; // radians per arrow-key press
 interface SpinningCanProps {
   can: Can;
   reducedMotion: boolean;
+  /** Stand still with the middle of the label (the logo) facing the camera. */
+  still?: boolean;
   dragRef?: RefObject<Drag>;
 }
 
-function SpinningCan({ can, reducedMotion, dragRef }: SpinningCanProps) {
+function SpinningCan({ can, reducedMotion, still = false, dragRef }: SpinningCanProps) {
   const shared = use(SharedContext);
   const camera = useRef<Camera>(null);
   const spin = useRef<Group>(null);
   // Reduced motion: a still can, label turned three-quarters to the camera
-  const [angle] = useState(() => (reducedMotion ? LABEL_FRONT + 0.4 : startAngle(can.id)));
+  const [angle] = useState(() => {
+    if (still) return LABEL_FRONT;
+    return reducedMotion ? LABEL_FRONT + 0.4 : startAngle(can.id);
+  });
 
   useFrame((_, delta) => {
     const cam = camera.current;
@@ -134,7 +139,7 @@ function SpinningCan({ can, reducedMotion, dragRef }: SpinningCanProps) {
       group.rotation.y += state.velocity * delta;
       return;
     }
-    if (!reducedMotion) {
+    if (!reducedMotion && !still) {
       group.rotation.y += delta * SPIN_SPEED;
     }
   });
@@ -162,12 +167,14 @@ interface CanViewProps {
   reducedMotion: boolean;
   /** Let the visitor turn the can by dragging or with the arrow keys. */
   interactive?: boolean;
+  /** Do not spin: the logo faces the camera. Ignored when interactive. */
+  still?: boolean;
   className?: string;
   style?: CSSProperties;
 }
 
 /** A can spinning inside this element's box, drawn by CatalogCanvas. */
-export function CanView({ can, reducedMotion, interactive = false, className, style }: CanViewProps) {
+export function CanView({ can, reducedMotion, interactive = false, still = false, className, style }: CanViewProps) {
   // A ref, not state: the handlers and the frame loop change it without re-rendering
   const drag = useRef<Drag>({ active: false, pending: 0, velocity: reducedMotion ? 0 : SPIN_SPEED });
   const last = useRef({ x: 0, time: 0 });
@@ -175,7 +182,7 @@ export function CanView({ can, reducedMotion, interactive = false, className, st
   if (!interactive) {
     return (
       <View className={className} style={style}>
-        <SpinningCan can={can} reducedMotion={reducedMotion} />
+        <SpinningCan can={can} reducedMotion={reducedMotion} still={still} />
       </View>
     );
   }

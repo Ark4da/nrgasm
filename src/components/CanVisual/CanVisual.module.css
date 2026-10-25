@@ -5,6 +5,14 @@
   filter: var(--filter-can);
 }
 
+/* The skin is the whole label unrolled with the front in the middle: fill the
+   box by height and keep its middle third, about what you see of a real can */
+.front {
+  object-fit: cover;
+  object-position: center;
+  border-radius: 14% / 6%;
+}
+
 .xs { width: 38px; height: 82px; }
 .sm { width: 91px; height: 195px; }
 .md { width: 120px; height: 258px; }

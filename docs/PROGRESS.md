@@ -77,6 +77,7 @@ Legend for who makes each file:
 | 2026-10-24 | A skin is found by file name: `public/cans/<can id>.jpg` (or .png, .webp); `src/data/skinFiles.json` lists the files, is rewritten by a Vite plugin, and is committed | The owner can add a skin by dropping a file; the explicit `label` lines in `cans.ts` were removed |
 | 2026-10-24 | Descriptions are written in our own words from the official page, the Energy Drink Mania review, and the Monster Energy wiki; no source, no description | "Never invent product facts"; copying the reviews word for word is not ours to publish |
 | 2026-10-25 | The `/ratings` chart ranks by a weighted average: every can starts with 3 votes at the overall average; ties go to more ratings, then the name. The plain average is what it shows | One 5-star vote must not top cans that many people rated highly |
+| 2026-10-25 | The ratings chart shows still 3D cans (`CanView still`), logo to the front, on the catalog's shared canvas; the flat front of the skin (`CanVisual labelFront`) is only the fallback | The owner wanted every can to look the same, with or without a skin, and none spinning |
 | 2026-10-25 | On phones (≤520px) the header has two rows: wordmark and account on top, the four links below; its height is the `--header-height` token | Four links and the account icon need about 490px in one row |
 
 ## Session log
@@ -178,6 +179,8 @@ Legend for who makes each file:
 - The header got a second row on phones; `FilterBar`, `CanPage`, and `HomePage` now use `--header-height` instead of a fixed 64px.
 - Checked in the built-in browser at 1024, 375, and 320 px with stand-in ratings (removed afterwards): no horizontal scroll, the catalog's sticky search sits right under the header. Build and lint pass.
 - Not checked yet: the page with real ratings from Supabase (needs `.env.local`).
+- The chart shows small still 3D cans with the skin on, logo turned to the front (`CanView` got a `still` option); cans without a skin get the drawn label, as in the catalog. They use the catalog's one shared canvas and exist only near the screen (`useNearViewport`).
+- While the 3D code loads, far from the screen, or without WebGL, a row shows the flat front of the skin: `CanVisual` got a `labelFront` option that crops the middle third of the unrolled label.
 
 ## Learning log
 

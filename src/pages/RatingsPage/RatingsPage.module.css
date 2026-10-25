@@ -97,6 +97,20 @@
   font-weight: 500;
 }
 
+/* The can's box: the 3D view fills it, the flat picture sits in the middle */
+.can {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 88px;
+}
+
+.view {
+  position: absolute;
+  inset: 0;
+}
+
 .name {
   display: flex;
   flex-direction: column;
