@@ -1,0 +1,30 @@
+.can {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 120px;
+}
+
+.view {
+  position: absolute;
+  inset: 0;
+}
+
+/* The flat fallback picture grows with the box, about as tall as the 3D can */
+.can > img {
+  width: 50px;
+  height: 108px;
+}
+
+@media (max-width: 640px) {
+  .can {
+    width: 50px;
+    height: 104px;
+  }
+
+  .can > img {
+    width: 43px;
+    height: 94px;
+  }
+}

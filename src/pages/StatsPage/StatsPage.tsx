@@ -1,15 +1,23 @@
-import type { CSSProperties } from 'react';
+import { lazy, Suspense, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router';
+import { useReducedMotion } from 'motion/react';
 import { cans } from '../../data/cans';
 import { useUserData } from '../../hooks/useUserData';
 import { computeStats } from '../../lib/stats';
 import { formatAverage } from '../../lib/format';
+import { hasWebGL } from '../../three/webgl';
 import type { Rating } from '../../types/tasting';
 import { buttonClass } from '../../components/Button/buttonClass';
-import { CanVisual } from '../../components/CanVisual/CanVisual';
 import { DataTransfer } from '../../components/DataTransfer/DataTransfer';
+import { ErrorBoundary } from '../../components/ErrorBoundary/ErrorBoundary';
+import { MiniCan } from '../../components/MiniCan/MiniCan';
 import { StarRating } from '../../components/StarRating/StarRating';
 import styles from './StatsPage.module.css';
+
+// The catalog's 3D canvas: the cans in "Top rated" draw into it
+const CatalogCanvas = lazy(() =>
+  import('../../three/CatalogCans').then((module) => ({ default: module.CatalogCanvas })),
+);
 
 const STARS_DESC: Rating[] = [5, 4, 3, 2, 1];
 
@@ -22,6 +30,10 @@ export function StatsPage() {
   const { data, mode } = useUserData();
   const stats = computeStats(cans, data);
   const mostCommon = Math.max(...Object.values(stats.distribution));
+  const reducedMotion = useReducedMotion() ?? false;
+  const [webgl] = useState(hasWebGL);
+  const [canvasFailed, setCanvasFailed] = useState(false);
+  const show3d = webgl && !canvasFailed && mode !== 'guest' && stats.topRated.length > 0;
 
   if (mode === 'guest') {
     return (
@@ -118,7 +130,7 @@ export function StatsPage() {
                   <li key={can.id}>
                     <Link to={`/can/${can.id}`} className={styles.topLink}>
                       <span className={styles.rank}>{index + 1}</span>
-                      <CanVisual can={can} size="xs" />
+                      <MiniCan can={can} show3d={show3d} reducedMotion={reducedMotion} />
                       <span className={styles.topName}>{can.name}</span>
                       <StarRating value={rating} />
                     </Link>
@@ -178,6 +190,14 @@ export function StatsPage() {
         </p>
         <DataTransfer />
       </section>
+
+      {show3d && (
+        <ErrorBoundary fallback={null} onError={() => setCanvasFailed(true)}>
+          <Suspense fallback={null}>
+            <CatalogCanvas />
+          </Suspense>
+        </ErrorBoundary>
+      )}
     </div>
   );
 }
