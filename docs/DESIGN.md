@@ -2,8 +2,6 @@
 
 Approved direction: **D — Acid Lab**, chosen on 2026-10-22 from four options.
 
-Reference mockups are on the Claude Design canvas *NRGASM — Visual Directions*: https://claude.ai/artifact/WZs7iE5CXot1JYPKkJNwaZ (private to the owner).
-
 ## Concept
 
 - **The base: matte charcoal and brushed aluminium, about 90% of the screen.** It is cold and calm.

@@ -2,8 +2,6 @@
 
 How to put NRGASM online with Supabase (sign-in, database, can skins) and Vercel (the website). You create the accounts and enter every key yourself; nothing here needs a credit card on the free tiers.
 
-The design behind these steps is in `docs/superpowers/specs/2026-10-24-accounts-and-deploy-design.md`.
-
 ## 1. Supabase project
 
 1. Sign up at [supabase.com](https://supabase.com) and create a new project (free tier). Pick a region close to you, and save the database password somewhere safe; the app never needs it.
@@ -94,6 +92,14 @@ No code changes are needed.
 3. Commit `src/data/skinFiles.json` and push, and upload the same file to the `cans` bucket. The live site then shows it too.
 
 The file is an unrolled label: about 1.38 : 1 (1024 × 741 works well), the front in the middle, and the top ~7% is printed on the can's neck.
+
+### Replacing a skin
+
+A new file under the same name needs no commit: `skinFiles.json` already lists it.
+
+1. Overwrite the file in `public/cans/`. Locally, reload the page.
+2. In the `cans` bucket, delete the old file and upload the new one (or upload with "overwrite" on).
+3. Browsers may keep the old picture for up to an hour: Storage sends `Cache-Control: max-age=3600`, and the app's service worker first shows its saved copy, then refreshes it in the background. To see the new skin at once: DevTools → Application → Storage → **Clear site data**, then reload.
 
 ## Local development
 

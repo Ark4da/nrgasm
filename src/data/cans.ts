@@ -5,7 +5,7 @@ import skinFiles from './skinFiles.json';
 
 // The catalog: every Monster sold in Europe or the US, past and present.
 //
-// Facts come only from the sources below, never from memory (see CLAUDE.md):
+// Facts come only from the sources below, never from memory:
 // - a flavor sold in Europe uses the official UK page (German if the UK has none):
 //   caffeine and sugar for the 500 ml can;
 // - a US-only flavor uses the official US page: caffeine and calories

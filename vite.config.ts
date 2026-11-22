@@ -49,7 +49,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 1100,
   },
   test: {
-    // Only pure logic is tested (see CLAUDE.md)
+    // Only pure logic is tested
     include: ['src/lib/**/*.test.ts'],
   },
 })

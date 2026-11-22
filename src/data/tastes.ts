@@ -2,7 +2,7 @@ import type { CanId, Taste } from '../types/can';
 
 // What each can tastes like, summed up in our own words from the sources listed
 // with it: the official product page, the Energy Drink Mania review, and the
-// Monster Energy wiki. A can with no usable source has no entry (see CLAUDE.md).
+// Monster Energy wiki. A can with no usable source has no entry.
 
 const UK = 'https://www.monsterenergy.com/en-gb/energy-drinks/';
 const DE = 'https://www.monsterenergy.com/de-de/energy-drinks/';
